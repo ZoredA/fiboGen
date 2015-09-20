@@ -1,0 +1,115 @@
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<!-- Source for export stuff: http://stackoverflow.com/a/14175397 -->
+<!--
+<svg width="120" height="240" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+      <radialGradient id="RadialGradient1">
+        <stop offset="0%" stop-color="red"/>
+        <stop offset="100%" stop-color="blue"/>
+      </radialGradient>
+      <radialGradient id="RadialGradient2" cx="0.25" cy="0.25" r="0.25">
+        <stop offset="0%" stop-color="red"/>
+        <stop offset="100%" stop-color="blue"/>
+      </radialGradient>
+      <radialGradient id="RadialGradient3" cx="1" cy="1" r="1.0">
+        <stop offset="0%" stop-color="red"/>
+        <stop offset="100%" stop-color="blue"/>
+      </radialGradient>
+  </defs>
+ 
+  <rect x="10" y="10" rx="15" ry="15" width="100" height="100" fill="url(#RadialGradient1)"/> 
+  <rect x="10" y="120" rx="15" ry="15" width="100" height="100" fill="url(#RadialGradient2)"/> 
+  
+</svg>
+-->
+<div id="raphaelDiv" style="display:none;"></div>
+<img id="myImg" src="" style="display:none;">
+<div id="nav">
+    <div id="paperSizeDiv">
+      <div align="center"><h3>Paper Size</h3></div>
+        <div align="center">
+        <div class="labelNum">Height (px)</div>
+        <div class="labelNum">
+          <input type="number" id="height" value="1000">
+        </div>
+      </div>
+      <div align="center">
+        <div class="labelNum">Width (px)</div>
+        <div class="labelNum">
+          <input type="number" id="width" value="1000">
+        </div>
+      </div>
+    </div>
+    <div align="center"><h3>Starting Orientation</h3> </div>
+    <div id="orientationBox" align="center"></div>
+    <div align="center" >
+      <input type="radio" name="orientation" value="A" checked="checked">A
+      <input type="radio" name="orientation" value="C">C<br>
+      <input type="radio" name="orientation" value="B">B
+      <input type="radio" name="orientation" value="D">D
+    </div>
+   <div align="center"><h3>Spiral Direction</h3> </div>
+     <div align="center" >
+      <input type="radio" name="spDirection" value="CW" checked="checked">CW
+      <input type="radio" name="spDirection" value="CCW">CCW
+    </div>
+    <div id="spiralStrokeSettings">
+      <div align="center"><h3>Spiral Stroke</h3> </div>
+      <div id="spiralStrokeWidth">Stroke Width</div>
+    </div>
+   <div align="center">
+     <div><h3>Square Color Wheel</h3>
+      <select id="wheelSelect" onchange="wheelChange(this, 'wheelOptions'); return false;">
+        <option value="multiIncreaseWheel"> Multi Increase Wheel</option>
+        <option value="linearIncreaseWheel">Linear Increase Wheel</option>
+        <option value="rangedLinearWheel" selected="true">Ranged Linear Wheel</option>
+        <option value="shortestRangedLinearWheel">Shortest R. Linear Wheel</option>
+        <option value="gradientWheel">Gradient Wheel</option>
+      </select> 
+   </div>
+   <div>
+     <div class="FiftyFifty">Starting color</div>
+     <div class="FiftyFifty">
+      <input class="color" id="initialColor">
+     </div>
+   </div>
+   <div id="endingColorDiv">
+     <div class="FiftyFifty">Final color</div>
+     <div class="FiftyFifty">
+      <input class="color" id="finalColor">
+     </div>
+   </div>
+   <div id="wheelOptions"></div>
+   <div id="subOptions"></div>
+   <div align="center">
+    <button onclick="run()">RUN</button>
+   </div> 
+   <div align="center">
+    <button onclick="toPNG()">To PNG</button>
+   </div> 
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    console.log("hello");
+    setupOrientationDisplay();
+    wheelChange(document.getElementById('wheelSelect'), 'wheelOptions');
+    return false;
+  }); 
+ </script>
+<script src="utility.js" ></script>
+<script src="colorWheel.js"></script>
+<script src="raphael-min.js"></script>
+<script src="Raphael.Export/raphael.export.js"></script>
+<script src="canvg/rgbcolor.js"></script>
+<script src="canvg/StackBlur.js"></script>
+<script src="canvg/canvg.js"></script>
+<script src="jscolor/jscolor.js"></script>
+<script src="spiralMaster.js"></script>
+<script src="spiral.js" ></script>
+<script src="frontPageWorks.js" ></script>
+</body>
+</html>
