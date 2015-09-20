@@ -1,7 +1,7 @@
 var wheelTypes = (function(){
     return {
         'ranged' : ['shortestRangedLinearWheel', 'rangedLinearWheel', 'gradientWheel'],
-        'not ranged' : ['multiIncreaseWheel', 'linearIncreaseWheel'],
+        'not ranged' : ['singleColor', 'multiIncreaseWheel', 'linearIncreaseWheel'],
         'default' : 'rangedLinearWheel'
     }
 })();
@@ -101,7 +101,8 @@ var wheelOptions = (function(){
            'linearIncreaseWheel' : ['redIncreaseFactor', 'greenIncreaseFactor', 'blueIncreaseFactor'],
            'rangedLinearWheel' : ['equalIncrease', 'backwords'],
            'gradientWheel' : ['equalIncrease', 'backwords', 'gradientStartIndex', 'gradientFuncConstant', 'gradientType', 'spreadMethod'],
-           'shortestRangedLinearWheel' : []
+           'shortestRangedLinearWheel' : [],
+           'singleColor' : []
        }
     };
 })();

@@ -252,6 +252,9 @@ var spiral = function(){
     
         var eli = paper.path(pathStr);
         eli.attr('stroke', 'red');
+        eli.attr('stroke-width', '10');
+        eli.attr('fill', 'blue');
+        eli.attr('stroke-linecap', 'round');
         return {
             x : oppositeX,
             y : oppositeY,

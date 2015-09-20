@@ -6,6 +6,8 @@
 // randomness if desired. Useful for debugging and trying out stuff.
 var spiralMaster = function(options) {
     options = options || {};
+    options.setDefault('spiralWheel', 'singleColor');
+    options.setDefault('spiralStartColor', 'black');
     options.setDefault('gradientType', 'radial');
     options.setDefault('spreadMethod', 'reflect');
     if (options.gradientType === 'radial'){
@@ -15,6 +17,23 @@ var spiralMaster = function(options) {
         options.setDefault('fy', '0%');
         options.setDefault('fx', '0%');
         
+    }
+    var r_spiralWheel = options.spiralWheel;
+    var r_spiralStartColor = options.spiralStartColor;
+    var r_getColor;
+    if (r_spiralWheel === 'singleColor'){
+        r_getCurveColor = function(totalCount){return r_spiralStartColor;};
+    }
+    else{
+        var spiralWheelObject;
+        r_getColor = function(totalCount){
+            if(!spiralWheelObject){
+                spiralWheelObject = getColorWheel(r_spiralWheel, totalCount);
+            }
+            var colorToReturn =  spiralWheelObject.getHex();
+            spiralWheelObject.advance();
+            return colorToReturn;
+        }
     }
     var r_width = options.width || 1000;
     var r_height = options.height || 1000;
@@ -125,15 +144,13 @@ var spiralMaster = function(options) {
     }
 
     // Constructs and returns a color wheel that can be used to color stuff.
-    var getColorWheel = function(numberOfSquares) {
-        var wheel = getFunctionFromString(r_colorWheel);
+    var getColorWheel = function(colorWheelName, numberToColor, wheelOptions) {
+        var wheel = getFunctionFromString(colorWheelName);
         if (wheel == undefined) {
             throw "Unable to find colorWheel with id: " + r_colorWheel;
         }
-        var wheelOptions;
-        options.setDefault('stepsRequired', numberOfSquares - 1);
-        wheelOptions = options;
-        return wheel(wheelOptions);
+        options.setDefault('stepsRequired', numberToColor - 1);
+        return wheel(options);
     }
 
     //A generic way to apply the color...in case we use a different library
@@ -190,7 +207,7 @@ var spiralMaster = function(options) {
     }
 
     var colorRaphObjects = function(objectCollection){
-        var wheel = getColorWheel(objectCollection.length);
+        var wheel = getColorWheel(r_colorWheel,objectCollection.length, options);
         console.log("OBJECT SIZE");
         console.log(objectCollection.length);
         applyColors(wheel, objectCollection, "attr", "fill");

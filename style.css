@@ -6,7 +6,7 @@ body {
 /* Take from : http://stackoverflow.com/a/12204808
 */
 #nav{
-    height:90%;
+    height:auto;
     width:15%;
     background-color:gray;
     float:right;

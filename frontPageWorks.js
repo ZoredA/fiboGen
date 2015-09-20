@@ -180,7 +180,7 @@ var createDropdown = function(parentElement, dropdownID, dropdownInfo ){
 //An event handler attached to the dropdown letting a user select
 //a color wheel. This just changes a different div and adds in the required
 //options.
-var wheelChange = function(wDropdown, optionDivID){
+var wheelChange = function(wDropdown, endingColorDivID, optionDivID){
     var selectedWheel = wDropdown.options[wDropdown.selectedIndex].value;
     var optionsNeeded =  wheelOptions.optionMap[selectedWheel];
     if (!optionsNeeded){
@@ -189,15 +189,23 @@ var wheelChange = function(wDropdown, optionDivID){
     }
     var optionsDiv = document.getElementById(optionDivID);
     optionsDiv.innerHTML = '';
+    var subOptionsNeeded = false;
     for(var i = 0; i < optionsNeeded.length; i++){
         var optionDesc = wheelOptions.options[optionsNeeded[i]];
         createParam(optionsDiv, optionsNeeded[i], optionDesc);
+        if (optionDesc.subOptions){
+            subOptionsNeeded = true;
+        }
     }
     if(wheelTypes.ranged.indexOf(selectedWheel) > -1){
-        document.getElementById('endingColorDiv').style.display = 'block';
+        document.getElementById(endingColorDivID).style.display = 'block';
     }
     else{
-        document.getElementById('endingColorDiv').style.display = 'none';
+        document.getElementById(endingColorDivID).style.display = 'none';
+    }
+    if (!subOptionsNeeded) {
+        var subOptionDiv = document.getElementById('subOptions');
+        subOptionDiv.innerHTML = '';
     }
 }
 

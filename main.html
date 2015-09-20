@@ -28,7 +28,7 @@
 -->
 <div id="raphaelDiv" style="display:none;"></div>
 <img id="myImg" src="" style="display:none;">
-<div id="nav">
+<div id="nav"><div align="center">
     <div id="paperSizeDiv">
       <div align="center"><h3>Paper Size</h3></div>
         <div align="center">
@@ -58,12 +58,39 @@
       <input type="radio" name="spDirection" value="CCW">CCW
     </div>
     <div id="spiralStrokeSettings">
-      <div align="center"><h3>Spiral Stroke</h3> </div>
-      <div id="spiralStrokeWidth">Stroke Width</div>
+      <div><h3>Spiral Stroke</h3> </div>
+      <div>
+        <div class="labelNum">Stroke Width</div>
+        <div class="labelNum">
+          <input id="strokeWidth" type="text" value="1">
+        </div>
+      </div>
+      <div>
+        <div><span>Stroke Wheel</span>
+          <select id="wheelSelect" onchange="wheelChange(this, 'strokeEndingColor', 'strokeWheelOptions'); return false;">
+            <option value="singleColor" selected="true">Single Color</option>
+            <option value="multiIncreaseWheel"> Multi Increase Wheel</option>
+            <option value="linearIncreaseWheel">Linear Increase Wheel</option>
+            <option value="rangedLinearWheel">Ranged Linear Wheel</option>
+            <option value="shortestRangedLinearWheel">Shortest R. Linear Wheel</option>
+          </select> 
+        </div>
+        <div>
+          <div class="FiftyFifty">Starting Color</div>
+          <div class="FiftyFifty">
+            <input class="color" id="initialStrokeColor">
+        </div>
+      <div id="strokeEndingColor">
+        <div class="FiftyFifty">Final color</div>
+        <div class="FiftyFifty">
+          <input class="color" id="finalColor">
+        </div>
     </div>
-   <div align="center">
-     <div><h3>Square Color Wheel</h3>
-      <select id="wheelSelect" onchange="wheelChange(this, 'wheelOptions'); return false;">
+       <div id="strokeWheelOptions"></div>
+   <div>
+     <h3>Square Colors</h3>
+     <span>Wheel Type</span>
+      <select id="wheelSelect" onchange="wheelChange(this, 'endingColorDiv', 'wheelOptions'); return false;">
         <option value="multiIncreaseWheel"> Multi Increase Wheel</option>
         <option value="linearIncreaseWheel">Linear Increase Wheel</option>
         <option value="rangedLinearWheel" selected="true">Ranged Linear Wheel</option>
@@ -91,12 +118,12 @@
    <div align="center">
     <button onclick="toPNG()">To PNG</button>
    </div> 
-</div>
+</div></div>
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     console.log("hello");
     setupOrientationDisplay();
-    wheelChange(document.getElementById('wheelSelect'), 'wheelOptions');
+    wheelChange(document.getElementById('wheelSelect'), 'endingColorDiv', 'wheelOptions');
     return false;
   }); 
  </script>
