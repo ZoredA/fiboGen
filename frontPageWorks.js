@@ -3,6 +3,7 @@
 //This creates a Spiral Master object and passes it along to spiral.js
 //to do the actual creation work.
 
+var masterOptions;
 
 var paper;
 var spiralObj;
@@ -46,84 +47,99 @@ var run = function(){
     
     var height = parseInt(document.getElementById('height').value);
     var width = parseInt(document.getElementById('width').value);
-    
+    var spiralWidth = document.getElementById('strokeWidth').value;
     var orientationToNumberMap = {
       A : spiralClockwise ? 1 : 5,
       B : spiralClockwise ? 2 : 6, 
       C : spiralClockwise ? 3 : 7,
       D : spiralClockwise ? 4 : 8,  
     };
-    var wDropdown = document.getElementById('wheelSelect');
-    var selectedWheel = wDropdown.options[wDropdown.selectedIndex].value;
-    var initialColors = hexToRgbObject(document.getElementById('initialColor').color.toString());
-    var optionsNeeded =  wheelOptions.optionMap[selectedWheel];
-    var optionsObject = {
-        colorWheel : selectedWheel,
-        startingOrientation : orientationToNumberMap[orientationValue],
-        startingRed : initialColors.red,
-        startingGreen : initialColors.green,
-        startingBlue : initialColors.blue,
+    
+    masterOptions = {
         height : height,
-        width : width
+        width : width,
+        startingOrientation : orientationToNumberMap[orientationValue],
+        spiralWidth : spiralWidth
+    };
+    
+    //Has the options for how the squares should be colored.
+    var squareColorOptions = nabOptions('w_');
+    var spiralColorOptions = nabOptions('s_');
+    
+    masterOptions.squareColor = spiralMaster(squareColorOptions);
+    masterOptions.spiralColor = spiralMaster(spiralColorOptions);
+    var sp = spiral();
+    paper = sp.run(masterOptions);
+    sp.createSpiral(paper);
+    spiralObj = sp;
+};
+
+var nabOptions = function(idPrefix){
+    var nabbedOptions = {};
+    
+    var dropDown = document.getElementById(idPrefix + 'wheelSelect');
+    var selectedWheel = dropDown.options[dropDown.selectedIndex].value;
+    var initialColors = hexToRgbObject(document.getElementById(idPrefix + 'initialColor').color.toString());
+    var optionsNeeded =  wheelOptions.optionMap[selectedWheel];
+
+    nabbedOptions.colorWheel = selectedWheel;
+    nabbedOptions.startingRed = initialColors.red;
+    nabbedOptions.startingGreen = initialColors.green;
+    nabbedOptions.startingBlue = initialColors.blue;
+
+    console.dir(nabbedOptions);
+    if(wheelTypes.ranged.indexOf(selectedWheel) > -1){
+        var finalColors = hexToRgbObject(document.getElementById(idPrefix + 'finalColor').color.toString());
+        nabbedOptions.finalRed = finalColors.red;
+        nabbedOptions.finalGreen = finalColors.green;
+        nabbedOptions.finalBlue = finalColors.blue;
     }
+    
     for (var i = 0; i < optionsNeeded.length; i++){
-        console.log(optionsNeeded[i]);
-        var opt = document.getElementById('w_' + optionsNeeded[i]);
+        var opt = document.getElementById(idPrefix + optionsNeeded[i]);
         if (opt.type === 'checkbox'){
-            optionsObject[optionsNeeded[i]] = opt.checked;
+            nabbedOptions[optionsNeeded[i]] = opt.checked;
         }
         else
         {
             if (opt.type === 'number')
             {
-               optionsObject[optionsNeeded[i]] = parseInt(opt.value); 
+               nabbedOptions[optionsNeeded[i]] = parseInt(opt.value); 
             }
             else
             {
                 if(wheelOptions.options[optionsNeeded[i]].type === 'select'){
                     var selectValue = opt.options[opt.selectedIndex].value;
-                    optionsObject[optionsNeeded[i]] = selectValue;
+                    nabbedOptions[optionsNeeded[i]] = selectValue;
                     if (wheelOptions.options[optionsNeeded[i]].subOptions){
                         //This particular option has suboptions associated with it.
                         var subOptions = wheelOptions.options[optionsNeeded[i]].subOptions[selectValue];
                         for (var j = 0; j < subOptions.length; j++){
                             //Note subOption is an object like {name:.., type:..., value:...}
                             var subOption = subOptions[j];
-                            optionsObject[subOption.name] = document.getElementById('w_' + subOption.name).value;
+                            nabbedOptions[subOption.name] = document.getElementById(idPrefix + subOption.name).value;
                         }
                     }
                 }
                 else
                 {
-                    optionsObject[optionsNeeded[i]] = opt.value;    
+                    nabbedOptions[optionsNeeded[i]] = opt.value;    
                 }
             }
         }
-    }
-    console.dir(optionsObject);
-    if(wheelTypes.ranged.indexOf(selectedWheel) > -1){
-        var finalColors = hexToRgbObject(document.getElementById('finalColor').color.toString());
-        optionsObject.finalRed = finalColors.red;
-        optionsObject.finalGreen = finalColors.green;
-        optionsObject.finalBlue = finalColors.blue;
-    }
-    
-    var masterObject = spiralMaster(optionsObject);
-    var sp = spiral();
-    paper = sp.run(masterObject);
-    sp.createSpiral(paper);
-    spiralObj = sp;
+    };
+    return nabbedOptions;
 };
 
-var createParam = function(parent, optionID, optionDesc){
+var createParam = function(parent, optionID, optionDesc, idPrefix){
     if (optionDesc.type === 'select'){
-        createDropdown(parent, 'w_' + optionID, optionDesc);
+        createDropdown(parent, idPrefix + optionID, optionDesc, idPrefix);
         return;
     }
     var newTextNode = document.createTextNode(optionDesc.name);
     var newNode = document.createElement('input');
     newNode.type = optionDesc.type;
-    newNode.id = 'w_' + optionID;
+    newNode.id = idPrefix + optionID;
     if (optionDesc.type === 'checkbox'){
         newNode.checked = optionDesc.checked;
     }
@@ -135,11 +151,11 @@ var createParam = function(parent, optionID, optionDesc){
     parent.appendChild(document.createElement('br'));
 }
 
-var subOptionHandler = function(parentDropdown){
-    var subOptionDiv = document.getElementById('subOptions');
+var subOptionHandler = function(parentDropdown, idPrefix){
+    var subOptionDiv = document.getElementById(idPrefix + 'subOptions');
     subOptionDiv.innerHTML = '';
     //A bit ugly, but we get the original option name.
-    var parentOption = parentDropdown.id.replace('w_','');
+    var parentOption = parentDropdown.id.replace(idPrefix,'');
     var optionDesc = wheelOptions.options[parentOption];
     if(!optionDesc.subOptions){
         return false;
@@ -153,7 +169,9 @@ var subOptionHandler = function(parentDropdown){
     return false;
 }
 
-var createDropdown = function(parentElement, dropdownID, dropdownInfo ){
+//This requires the id of the dropdown to be created, but also needs idPrefix 
+//as that value is then passed on to subOptionHandler.
+var createDropdown = function(parentElement, dropdownID, dropdownInfo, idPrefix ){
     var newDropdown = document.createElement('select');
     newDropdown.id = dropdownID;
     var options = dropdownInfo.values;
@@ -172,39 +190,39 @@ var createDropdown = function(parentElement, dropdownID, dropdownInfo ){
     //required by an option. e.g. A radial gradient has different
     //attributes than a linear one.
     if(dropdownInfo.subOptions){
-        newDropdown.onchange = function(){subOptionHandler(newDropdown)};;
-        subOptionHandler(newDropdown); //Call the sub handler, so they options are there from the get go.
+        newDropdown.onchange = function(){subOptionHandler(newDropdown, idPrefix)};;
+        subOptionHandler(newDropdown, idPrefix); //Call the sub handler, so they options are there from the get go.
     }
 };
 
 //An event handler attached to the dropdown letting a user select
 //a color wheel. This just changes a different div and adds in the required
 //options.
-var wheelChange = function(wDropdown, endingColorDivID, optionDivID){
+var wheelChange = function(wDropdown, idPrefix){
     var selectedWheel = wDropdown.options[wDropdown.selectedIndex].value;
     var optionsNeeded =  wheelOptions.optionMap[selectedWheel];
     if (!optionsNeeded){
         alert("Unsupported wheel ended up in the dropdown. Check wheelOptions.optionMap");
         return;
     }
-    var optionsDiv = document.getElementById(optionDivID);
+    var optionsDiv = document.getElementById(idPrefix + 'wheelOptions');
     optionsDiv.innerHTML = '';
     var subOptionsNeeded = false;
     for(var i = 0; i < optionsNeeded.length; i++){
         var optionDesc = wheelOptions.options[optionsNeeded[i]];
-        createParam(optionsDiv, optionsNeeded[i], optionDesc);
+        createParam(optionsDiv, optionsNeeded[i], optionDesc, idPrefix);
         if (optionDesc.subOptions){
             subOptionsNeeded = true;
         }
     }
     if(wheelTypes.ranged.indexOf(selectedWheel) > -1){
-        document.getElementById(endingColorDivID).style.display = 'block';
+        document.getElementById(idPrefix + 'endingColorDiv').style.display = 'block';
     }
     else{
-        document.getElementById(endingColorDivID).style.display = 'none';
+        document.getElementById(idPrefix + 'endingColorDiv').style.display = 'none';
     }
     if (!subOptionsNeeded) {
-        var subOptionDiv = document.getElementById('subOptions');
+        var subOptionDiv = document.getElementById(idPrefix + 'subOptions');
         subOptionDiv.innerHTML = '';
     }
 }

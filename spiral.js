@@ -251,10 +251,9 @@ var spiral = function(){
         var pathStr = startStr + elipseStr;
     
         var eli = paper.path(pathStr);
-        eli.attr('stroke', 'red');
-        eli.attr('stroke-width', '10');
-        eli.attr('fill', 'blue');
-        eli.attr('stroke-linecap', 'round');
+        eli.attr('stroke', spMaster.spiralColor.getOneColor(bigRectangle.squares.length));
+        eli.attr('stroke-width', spMaster.spiralWidth);
+        eli.attr('stroke-linecap', 'butt');
         return {
             x : oppositeX,
             y : oppositeY,
@@ -527,11 +526,6 @@ var spiral = function(){
             {
                 //Even though we need to, we can't shift right.
                 //Life sucks or something.
-                // console.log("Can't shift right.");
-                // console.log("Length of new side: " + newSquareEdge.length);
-                // console.log("Space needed: " + spaceRequired);
-                // console.log("Space we have on the left: " + emptyLeftSpace);
-                // console.log("Space we have on the right: " + emptyRightSpace);
                 return false;
             }
         }
@@ -561,11 +555,6 @@ var spiral = function(){
                 else
                 {
                     //Can't shift left.
-                    // console.log("Can't shift left.");
-                    // console.log("Length of new side: " + newSquareEdge.length);
-                    // console.log("Space needed: " + spaceRequired);
-                    // console.log("Space we have on the left: " + emptyLeftSpace);
-                    // console.log("Space we have on the right: " + emptyRightSpace);
                     return false;
                 }
             }
@@ -591,11 +580,6 @@ var spiral = function(){
             }
             else
             {
-                // console.log("Can't shift up.");
-                // console.log("Length of new side: " + newSquareEdge.length);
-                // console.log("Space needed: " + spaceRequired);
-                // console.log("Space we have below: " + emptySpaceBelow);
-                // console.log("Space we have above: " + emptySpaceAbove);
                 return false;
             }
         }
@@ -616,11 +600,6 @@ var spiral = function(){
                 }
                 else
                 {
-                    // console.log("Can't shift down.");
-                    // console.log("Length of new side: " + newSquareEdge.length);
-                    // console.log("Space needed: " + spaceRequired);
-                    // console.log("Space we have below: " + emptySpaceBelow);
-                    // console.log("Space we have above: " + emptySpaceAbove);
                     return false;
                 }
             }
@@ -679,40 +658,11 @@ var spiral = function(){
     var run = function(masterObject)
     {    
         spMaster = masterObject || spiralMaster();
-        startingOrientation = spMaster.getOrientation();
+        startingOrientation = spMaster.startingOrientation;
     
         //Hopefully most of this can be used, but it will
         //probably depend on the starting orientation.
-        var paper = Raphael(paperX, paperY, spMaster.getWidth(), spMaster.getHeight());
-    
-        //If a spiralMaster object is not passed in, we create it.
-        //This is used to set the orientation and do the coloring.
-        //var svg = paper.canvas;
-        //var svgChildren = svg.childNodes;
-        //var defsNode;
-        //for (var i = 0; i < svgChildren.length; i++){
-        //var childNode = svgChildren[i];
-        //if (childNode.nodeName == "defs"){
-            //defsNode = childNode;
-            //break;
-        //}
-        //}
-        //var NS = "http://www.w3.org/2000/svg";
-            //var radialNode = document.createElementNS(NS, "radialGradient");
-        //radialNode.id = "RadialGradient1";
-        
-        //var stop1Node = document.createElementNS(NS, "stop")
-        //stop1Node.setAttribute("offset", "0%");
-        //stop1Node.setAttribute("stop-color", "red");
-        
-        //var stop2Node = document.createElementNS(NS, "stop")
-        //stop2Node.setAttribute("offset", "100%");
-        //stop2Node.setAttribute("stop-color", "blue");
-        
-        //radialNode.appendChild(stop1Node);
-        //radialNode.appendChild(stop2Node);
-        //defsNode.appendChild(radialNode);
-    
+        var paper = Raphael(paperX, paperY, spMaster.width, spMaster.height); 
     
         paperX2 = paperX + paper.width;
         paperY2 = paperY + paper.height;
@@ -750,18 +700,8 @@ var spiral = function(){
     
         //We color our squares.
         console.log("Coloring the squares.");
-        spMaster.color(bigRectangle.squares);
-    
-        //paper.setViewBox(0, 0, bigRectangle.width, bigRectangle.height, true);
-        //paper.x = bigRectangle.x;
-        //paper.y = bigRectangle.y;
-        //
-        //paper.setSize(bigRectangle.width, bigRectangle.height);
-    
-        //paper.setSize(bigRectangle.width, bigRectangle.height);
-        //var paperElement = paper.canvas;
-        //paperElement.setAttribute('style', 'overflow: hidden; position: absolute; left: ' + bigRectangle.x + "px; top: " + bigRectangle.y + "px;");
-    
+        spMaster.squareColor.color(bigRectangle.squares);
+
         console.log("Done.");
     
         return paper;

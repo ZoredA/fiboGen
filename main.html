@@ -66,8 +66,8 @@
         </div>
       </div>
       <div>
-        <div><span>Stroke Wheel</span>
-          <select id="wheelSelect" onchange="wheelChange(this, 'strokeEndingColor', 'strokeWheelOptions'); return false;">
+        <div><span>Stroke Colors</span>
+          <select id="s_wheelSelect" onchange="wheelChange(this, 's_'); return false;">
             <option value="singleColor" selected="true">Single Color</option>
             <option value="multiIncreaseWheel"> Multi Increase Wheel</option>
             <option value="linearIncreaseWheel">Linear Increase Wheel</option>
@@ -78,19 +78,21 @@
         <div>
           <div class="FiftyFifty">Starting Color</div>
           <div class="FiftyFifty">
-            <input class="color" id="initialStrokeColor">
+            <input class="color" id="s_initialColor">
         </div>
-      <div id="strokeEndingColor">
+      <div id="s_endingColorDiv">
         <div class="FiftyFifty">Final color</div>
         <div class="FiftyFifty">
-          <input class="color" id="finalColor">
+          <input class="color" id="s_finalColor">
         </div>
     </div>
-       <div id="strokeWheelOptions"></div>
+       <div id="s_wheelOptions"></div>
+       <div id="s_subOptions" style="display:none;"></div>
    <div>
      <h3>Square Colors</h3>
      <span>Wheel Type</span>
-      <select id="wheelSelect" onchange="wheelChange(this, 'endingColorDiv', 'wheelOptions'); return false;">
+      <select id="w_wheelSelect" onchange="wheelChange(this, 'w_'); return false;">
+        <option value="singleColor">Single Color</option>
         <option value="multiIncreaseWheel"> Multi Increase Wheel</option>
         <option value="linearIncreaseWheel">Linear Increase Wheel</option>
         <option value="rangedLinearWheel" selected="true">Ranged Linear Wheel</option>
@@ -101,17 +103,17 @@
    <div>
      <div class="FiftyFifty">Starting color</div>
      <div class="FiftyFifty">
-      <input class="color" id="initialColor">
+      <input class="color" id="w_initialColor">
      </div>
    </div>
-   <div id="endingColorDiv">
+   <div id="w_endingColorDiv">
      <div class="FiftyFifty">Final color</div>
      <div class="FiftyFifty">
-      <input class="color" id="finalColor">
+      <input class="color" id="w_finalColor">
      </div>
    </div>
-   <div id="wheelOptions"></div>
-   <div id="subOptions"></div>
+   <div id="w_wheelOptions"></div>
+   <div id="w_subOptions"></div>
    <div align="center">
     <button onclick="run()">RUN</button>
    </div> 
@@ -123,7 +125,7 @@
   document.addEventListener("DOMContentLoaded", function() {
     console.log("hello");
     setupOrientationDisplay();
-    wheelChange(document.getElementById('wheelSelect'), 'endingColorDiv', 'wheelOptions');
+    wheelChange(document.getElementById('w_wheelSelect'), 'w_');
     return false;
   }); 
  </script>
