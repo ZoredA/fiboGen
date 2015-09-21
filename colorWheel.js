@@ -56,7 +56,23 @@ var wheelOptions = (function(){
                     'name' : 'Radial'
                 }],
                 'subOptions' : {
-                    'linear' : [],
+                    'linear' : [{
+                        'value' : '0%',
+                        'name' : 'x1',
+                        'type' : 'text'
+                    },{
+                        'value' : '0%',
+                        'name' : 'y1',
+                        'type' : 'text'
+                    },{
+                        'value' : '100%',
+                        'name' : 'x2',
+                        'type' : 'text'
+                    },{
+                        'value' : '0%',
+                        'name' : 'y2',
+                        'type' : 'text'
+                    }],
                     'radial' : [{
                         'value' : '50%',
                         'name' : 'cx',

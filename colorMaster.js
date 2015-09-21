@@ -12,6 +12,8 @@ var spiralMaster = function(options) {
     // Pick the color wheel to use.
     
     if(options.colorWheel === 'gradientWheel'){
+        //With the exception of spreadMethod, defaults
+        //taken from http://www.w3.org/TR/SVG/pservers.html
         options.setDefault('gradientType', 'radial');
         options.setDefault('spreadMethod', 'reflect');
         if (options.gradientType === 'radial'){
@@ -20,6 +22,14 @@ var spiralMaster = function(options) {
             options.setDefault('r', '50%');
             options.setDefault('fy', '0%');
             options.setDefault('fx', '0%');
+        }
+        else{
+            //The only other option we can support is linear gradients, so
+            //we assume that to be the case.
+            options.setDefault('x1', '0%');
+            options.setDefault('y1', '0%');
+            options.setDefault('x2', '100%');
+            options.setDefault('y2', '0%');
         }
     }
     
@@ -57,9 +67,9 @@ var spiralMaster = function(options) {
             return;
         }
 
-        var gradientStr = "90-"+hexList[0];
+        var gradientStr = "45-"+hexList[0];
         var percentIncrementRate = 100 / (hexList.length - 1);
-        var currentPercent = percentIncrementRate;
+        var currentPercent = 0;
         for(var i = 1; i < hexList.length-1; i++) {
             gradientStr = gradientStr + "-" + hexList[i] + ":" + currentPercent.toInt().toString();
             currentPercent += percentIncrementRate;
@@ -67,6 +77,36 @@ var spiralMaster = function(options) {
         gradientStr = gradientStr + "-" + hexList.last().toString();
         elementToColor.attr({ fill : gradientStr});
     };
+    
+    var createLinearElementTag = function(parentDefsNode, hexList, elementToColor){
+        if (hexList.length == 1) {
+            //The element only needs one color, no need to make a gradient
+            //for it.
+            elementToColor.attr({ fill : hexList[0] });
+            return;
+        }
+        var radialNode = document.createElementNS(NS, "linearGradient");
+        //We assume the elements have a unique height. This should normally
+        //be true.
+        radialNode.id = "LGradient" + elementToColor.attrs.height;
+        radialNode.setAttribute("x1", options.x1);
+        radialNode.setAttribute("y1", options.y1);
+        radialNode.setAttribute("x2", options.x2);
+        radialNode.setAttribute("y2", options.y2);
+        radialNode.setAttribute("spreadMethod", options.spreadMethod);
+        //radialNode.setAttribute("gradientTransform", "rotate(180)");
+        var percentIncrementRate = 100 / (hexList.length - 1);
+        var currentPercent = 0;
+        for(var i = 0; i < hexList.length; i++) {
+            var stopNode = document.createElementNS(NS, "stop");
+            stopNode.setAttribute("offset", currentPercent.toInt().toString() + "%");
+            stopNode.setAttribute("stop-color", hexList[i]);
+            radialNode.appendChild(stopNode);
+            currentPercent += percentIncrementRate;
+        }
+        parentDefsNode.appendChild(radialNode);
+        elementToColor.node.setAttribute("fill", "url(#" + radialNode.id + ")");
+    }
     
     //Expects the parentDef (child of SVG) and a hexList
     //that is returned by a call to gradientWheel's getHexList
@@ -98,7 +138,6 @@ var spiralMaster = function(options) {
             radialNode.appendChild(stopNode);
             currentPercent += percentIncrementRate;
         }
-        parentDefsNode.html = ''; //Clear any existing gradients.
         parentDefsNode.appendChild(radialNode);
         elementToColor.node.setAttribute("fill", "url(#" + radialNode.id + ")");
     };
@@ -121,6 +160,7 @@ var spiralMaster = function(options) {
         var svg = objectCollection[0].paper.canvas;
         var svgChildren = svg.childNodes;
         var defsNode;
+        var item;
         for (var i = 0; i < svgChildren.length; i++){
           var childNode = svgChildren[i];
           if (childNode.nodeName == "defs"){
@@ -129,24 +169,23 @@ var spiralMaster = function(options) {
           }
         }
         if (r_colorWheel === "gradientWheel"){
+            defsNode.innerHTML = ''; //Clear any existing gradients.
             for(var i = 0; i < collectionSize; i++){
-                var item = objectCollection[i];
+                item = objectCollection[i];
                 if (options.gradientType === 'radial')
                 {
                     createRadialElementTag(defsNode, wheel.getHexList(), item);    
                 }
                 else
                 {
-                    createLinearGradient(wheel.getHexList(), item);
+                    //createLinearGradient(wheel.getHexList(), item);
+                    createLinearElementTag(defsNode, wheel.getHexList(), item);
                 }
-                
                 wheel.advance();
                 if (postColorFN){postColorFN(item)};
-            }
+            };
         }
         else{
-            //var colors = wheel.getColorArrays().hexList;
-            var item;
             for(var i = 0; i < collectionSize; i++){
                 item = objectCollection[i];
                 var temp = {};
@@ -154,10 +193,8 @@ var spiralMaster = function(options) {
                 getFunctionFromString(methodToCall, item).call(item, temp);
                 wheel.advance();
                 if (postColorFN){postColorFN(item)};
-            }
-            //console.dir(wheel.getColorArrays());
+            };
         }
-        // console.dir(wheel.getColorArrays());
     };
 
     var colorRaphObjects = function(objectCollection, postColorFN){

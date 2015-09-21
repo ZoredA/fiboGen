@@ -5,7 +5,6 @@ var spiral = function(){
     // Hopefully this will draw a fibonacchi spiral.
     // Libraries used: 
     //  Raphael
-    //  Raphael.Export : https://github.com/AliasIO/Raphael.Export
     //  canvg : https://github.com/gabelerner/canvg
     var bigRectangle = {
         x : 0,
