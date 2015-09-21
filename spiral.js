@@ -700,8 +700,17 @@ var spiral = function(){
     
         //We color our squares.
         console.log("Coloring the squares.");
-        spMaster.squareColor.color(bigRectangle.squares);
-
+        //This is a little bit messy, but basically the colorMaster class
+        //deals with coloring stuff using colorWheel.js. colorFill simply
+        //adds color to the 'fill' attribute of a Raphael object. colorStroke
+        //sets the stroke attribute to a color. colorStroke can also take
+        //a callback function that do whatever else you may want (for each square).
+        //In this case, we use it to set the stroke width, so we don't have to
+        //loop a second time.
+        spMaster.squareColor.colorFill(bigRectangle.squares);
+        spMaster.squareStroke.colorStroke(bigRectangle.squares, function(square){
+            square.attr('stroke-width', spMaster.squareStrokeWidth)
+        });
         console.log("Done.");
     
         return paper;

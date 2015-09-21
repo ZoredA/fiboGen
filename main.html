@@ -26,6 +26,11 @@
   
 </svg>
 -->
+
+<!--
+  cus_ : id denoting any option related to the stroke of the curve.
+  sqf_ : id denoting any option related to the fill property of the squares.
+  -->
 <div id="raphaelDiv" style="display:none;"></div>
 <img id="myImg" src="" style="display:none;">
 <div id="nav"><div align="center">
@@ -58,16 +63,15 @@
       <input type="radio" name="spDirection" value="CCW">CCW
     </div>
     <div id="spiralStrokeSettings">
-      <div><h3>Spiral Stroke</h3> </div>
+      <h3>Spiral Stroke</h3>
       <div>
         <div class="labelNum">Stroke Width</div>
         <div class="labelNum">
-          <input id="strokeWidth" type="text" value="1">
+          <input id="curveStrokeWidth" type="text" value="1">
         </div>
       </div>
-      <div>
         <div><span>Stroke Colors</span>
-          <select id="s_wheelSelect" onchange="wheelChange(this, 's_'); return false;">
+          <select id="cus_wheelSelect" onchange="FrontPageWorks.wheelChange(this, 'cus_'); return false;">
             <option value="singleColor" selected="true">Single Color</option>
             <option value="multiIncreaseWheel"> Multi Increase Wheel</option>
             <option value="linearIncreaseWheel">Linear Increase Wheel</option>
@@ -78,20 +82,54 @@
         <div>
           <div class="FiftyFifty">Starting Color</div>
           <div class="FiftyFifty">
-            <input class="color" id="s_initialColor">
+            <input class="color" id="cus_initialColor" value="#000000">
+          </div>
         </div>
-      <div id="s_endingColorDiv">
+      <div id="cus_endingColorDiv">
         <div class="FiftyFifty">Final color</div>
         <div class="FiftyFifty">
-          <input class="color" id="s_finalColor">
+          <input class="color" id="cus_finalColor">
         </div>
     </div>
-       <div id="s_wheelOptions"></div>
-       <div id="s_subOptions" style="display:none;"></div>
+       <div id="cus_wheelOptions"></div>
+       <div id="cus_subOptions" style="display:none;"></div>
+    </div>
+    <div id="squareStrokeSettings">
+      <h3>Square Stroke</h3>
+      <div>
+        <div class="labelNum">Stroke Width</div>
+        <div class="labelNum">
+          <input id="squareStrokeWidth" type="text" value="1">
+        </div>
+      </div>
+        <div><span>Stroke Colors</span>
+          <select id="sqs_wheelSelect" onchange="FrontPageWorks.wheelChange(this, 'sqs_'); return false;">
+            <option value="singleColor" selected="true">Single Color</option>
+            <option value="multiIncreaseWheel"> Multi Increase Wheel</option>
+            <option value="linearIncreaseWheel">Linear Increase Wheel</option>
+            <option value="rangedLinearWheel">Ranged Linear Wheel</option>
+            <option value="shortestRangedLinearWheel">Shortest R. Linear Wheel</option>
+          </select> 
+        </div>
+        <div>
+          <div class="FiftyFifty">Starting Color</div>
+          <div class="FiftyFifty">
+            <input class="color" id="sqs_initialColor" value="#000000">
+          </div>
+        </div>
+      <div id="sqs_endingColorDiv">
+        <div class="FiftyFifty">Final color</div>
+        <div class="FiftyFifty">
+          <input class="color" id="sqs_finalColor">
+        </div>
+    </div>
+       <div id="sqs_wheelOptions"></div>
+       <div id="sqs_subOptions" style="display:none;"></div>
+    </div>
    <div>
-     <h3>Square Colors</h3>
+     <h3>Square Fill Colors</h3>
      <span>Wheel Type</span>
-      <select id="w_wheelSelect" onchange="wheelChange(this, 'w_'); return false;">
+      <select id="sqf_wheelSelect" onchange="FrontPageWorks.wheelChange(this, 'sqf_'); return false;">
         <option value="singleColor">Single Color</option>
         <option value="multiIncreaseWheel"> Multi Increase Wheel</option>
         <option value="linearIncreaseWheel">Linear Increase Wheel</option>
@@ -103,29 +141,31 @@
    <div>
      <div class="FiftyFifty">Starting color</div>
      <div class="FiftyFifty">
-      <input class="color" id="w_initialColor">
+      <input class="color" id="sqf_initialColor">
      </div>
    </div>
-   <div id="w_endingColorDiv">
+   <div id="sqf_endingColorDiv">
      <div class="FiftyFifty">Final color</div>
      <div class="FiftyFifty">
-      <input class="color" id="w_finalColor">
+      <input class="color" id="sqf_finalColor">
      </div>
    </div>
-   <div id="w_wheelOptions"></div>
-   <div id="w_subOptions"></div>
+   <div id="sqf_wheelOptions"></div>
+   <div id="sqf_subOptions"></div>
    <div align="center">
-    <button onclick="run()">RUN</button>
+    <button onclick="FrontPageWorks.run()">RUN</button>
    </div> 
    <div align="center">
-    <button onclick="toPNG()">To PNG</button>
+    <button onclick="FrontPageWorks.toPNG()">To PNG</button>
    </div> 
 </div></div>
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     console.log("hello");
-    setupOrientationDisplay();
-    wheelChange(document.getElementById('w_wheelSelect'), 'w_');
+    FrontPageWorks.setupOrientationDisplay();
+    FrontPageWorks.wheelChange(document.getElementById('cus_wheelSelect'), 'cus_');
+    FrontPageWorks.wheelChange(document.getElementById('sqs_wheelSelect'), 'sqs_');
+    FrontPageWorks.wheelChange(document.getElementById('sqf_wheelSelect'), 'sqf_');
     return false;
   }); 
  </script>
@@ -137,7 +177,7 @@
 <script src="canvg/StackBlur.js"></script>
 <script src="canvg/canvg.js"></script>
 <script src="jscolor/jscolor.js"></script>
-<script src="spiralMaster.js"></script>
+<script src="colorMaster.js"></script>
 <script src="spiral.js" ></script>
 <script src="frontPageWorks.js" ></script>
 </body>
