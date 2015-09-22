@@ -669,6 +669,10 @@ var spiral = function(){
         initialize(paper, paperX, paperY);
         var newSquareEdge;
         var newSquare;
+        //The 80 is just there to prevent an infinte loop.
+        //The program will normally terminate long before this number
+        //is reached as the total size of the rectangle grows really fast.
+        //A 1000x1000 paper can contain around 14 squares.
         while(bigRectangle.squares.length < 80) {
             newSquareEdge = bigRectangle.getEdgeForNewSquare();
             if (notInRange(newSquareEdge))

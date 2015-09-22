@@ -82,6 +82,17 @@ var FrontPageWorks = (function(){
         spiralObj = sp;
     };
     
+    var nabSelectedRadio = function(radioName){
+        //From: http://stackoverflow.com/a/9618826
+        var radios = document.getElementsByName(radioName);
+        for (var i = 0, length = radios.length; i < length; i++) {
+            if (radios[i].checked) {
+                 // only one radio can be logically checked, don't check the rest
+                return radios[i].value;
+            }
+        }
+    };
+    
     var nabOptions = function(idPrefix){
         var nabbedOptions = {};
         
@@ -104,44 +115,74 @@ var FrontPageWorks = (function(){
         }
         
         for (var i = 0; i < optionsNeeded.length; i++){
+            if(wheelOptions.options[optionsNeeded[i]].type === 'radio')
+            {
+                nabbedOptions[optionsNeeded[i]] = nabSelectedRadio(wheelOptions.options[optionsNeeded[i]].name);
+                continue;
+            }
             var opt = document.getElementById(idPrefix + optionsNeeded[i]);
             if (opt.type === 'checkbox'){
                 nabbedOptions[optionsNeeded[i]] = opt.checked;
+                continue;
+            }
+            if (opt.type === 'number')
+            {
+                nabbedOptions[optionsNeeded[i]] = parseFloat(opt.value);
+                continue; 
+            }
+            if(wheelOptions.options[optionsNeeded[i]].type === 'select')
+            {
+                var selectValue = opt.options[opt.selectedIndex].value;
+                nabbedOptions[optionsNeeded[i]] = selectValue;
+                if (wheelOptions.options[optionsNeeded[i]].subOptions){
+                    //This particular option has suboptions associated with it.
+                    var subOptions = wheelOptions.options[optionsNeeded[i]].subOptions[selectValue];
+                    for (var j = 0; j < subOptions.length; j++){
+                        //Note subOption is an object like {name:.., type:..., value:...}
+                        var subOption = subOptions[j];
+                        nabbedOptions[subOption.name] = document.getElementById(idPrefix + subOption.name).value;
+                    }
+                }
             }
             else
             {
-                if (opt.type === 'number')
-                {
-                nabbedOptions[optionsNeeded[i]] = parseInt(opt.value); 
-                }
-                else
-                {
-                    if(wheelOptions.options[optionsNeeded[i]].type === 'select'){
-                        var selectValue = opt.options[opt.selectedIndex].value;
-                        nabbedOptions[optionsNeeded[i]] = selectValue;
-                        if (wheelOptions.options[optionsNeeded[i]].subOptions){
-                            //This particular option has suboptions associated with it.
-                            var subOptions = wheelOptions.options[optionsNeeded[i]].subOptions[selectValue];
-                            for (var j = 0; j < subOptions.length; j++){
-                                //Note subOption is an object like {name:.., type:..., value:...}
-                                var subOption = subOptions[j];
-                                nabbedOptions[subOption.name] = document.getElementById(idPrefix + subOption.name).value;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        nabbedOptions[optionsNeeded[i]] = opt.value;    
-                    }
-                }
+                nabbedOptions[optionsNeeded[i]] = opt.value;    
             }
         };
         return nabbedOptions;
     };
     
+    var createRadios = function(parent, optionDesc, idPrefix){
+        var newDiv = document.createElement('div');
+        newDiv.id = idPrefix + optionDesc.name;
+        newDiv.className = "radioDiv";
+        var newTextNode = document.createTextNode(optionDesc.title);
+        parent.appendChild(newDiv);
+        newDiv.appendChild(newTextNode);
+        newDiv.appendChild(document.createElement('br'));
+        var radiosRequired = optionDesc.radios;
+        for(var i = 0; i < radiosRequired.length; i++){
+            var newNode = document.createElement('input');
+            newNode.type = 'radio';
+            newNode.name = optionDesc.name;
+            newNode.value = radiosRequired[i].value;
+            newNode.id = idPrefix + radiosRequired[i].value;
+            var newLabelNode = document.createElement('label');
+            newLabelNode.for = idPrefix + radiosRequired[i].value
+            newLabelNode.appendChild(document.createTextNode(radiosRequired[i].title));
+            newDiv.appendChild(newNode);
+            newDiv.appendChild(newLabelNode);
+            newDiv.appendChild(document.createElement('br'));
+        };
+    }
+    
     var createParam = function(parent, optionID, optionDesc, idPrefix){
         if (optionDesc.type === 'select'){
             createDropdown(parent, idPrefix + optionID, optionDesc, idPrefix);
+            return;
+        }
+        if (optionDesc.type === 'radio'){
+            createRadios(parent, optionDesc, idPrefix);
             return;
         }
         var newTextNode = document.createTextNode(optionDesc.name);

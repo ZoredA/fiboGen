@@ -5,7 +5,7 @@ body {
 
 /* Take from : http://stackoverflow.com/a/12204808
 */
-#nav{
+#settings{
     height:auto;
     width:15%;
     background-color:gray;
@@ -20,8 +20,23 @@ body {
 }
 
 .FiftyFifty{
-    width:40%;
+    width:auto;
     margin:auto;
     padding:5px;
     display:inline-block;
 }
+
+/*http://stackoverflow.com/a/4639239*/
+.radioDiv * {
+    vertical-align: middle;
+}
+
+.radioDiv input {
+  clear:left;
+}
+.radioDiv label { 
+  display:inline-block;
+}
+
+/*http://stackoverflow.com/a/890463*/
+input[type="radio"], input[type="checkbox"] {vertical-align: middle; margin: 0px; } 

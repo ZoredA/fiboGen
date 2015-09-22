@@ -44,6 +44,25 @@ var wheelOptions = (function(){
                 'value' : 1.618,
                 'name' : 'Gradient Function Constant'
             },
+            gradientDifference : {
+                'type' : 'radio',
+                'name' : 'gradDifferenceType',
+                'selected' : 'start-current',
+                'title' : 'Gradient Difference',
+                'radios' : [{
+                    'value' : 'current-next',
+                    'title' : 'Current -> Next'   
+                },{
+                    'value' : 'start-current',
+                    'title' : 'Start -> Current'   
+                },{
+                    'value' : 'current-end',
+                    'title' : 'Current -> End'   
+                },{
+                    'value' : 'start-end',
+                    'title' : 'Start -> End'   
+                }]
+            },
             gradientType : {
                 'type' : 'select',
                 'selected' : 'radial',
@@ -116,7 +135,7 @@ var wheelOptions = (function(){
            'multiIncreaseWheel' : ['redIncreaseFactor', 'greenIncreaseFactor', 'blueIncreaseFactor'],
            'linearIncreaseWheel' : ['redIncreaseFactor', 'greenIncreaseFactor', 'blueIncreaseFactor'],
            'rangedLinearWheel' : ['equalIncrease', 'backwords'],
-           'gradientWheel' : ['equalIncrease', 'backwords', 'gradientStartIndex', 'gradientFuncConstant', 'gradientType', 'spreadMethod'],
+           'gradientWheel' : ['equalIncrease', 'backwords', 'gradientStartIndex', 'gradientFuncConstant','gradientDifference','gradientType', 'spreadMethod'],
            'shortestRangedLinearWheel' : [],
            'singleColor' : []
        }
@@ -597,7 +616,6 @@ var colorWheels = (function(){
         //This gets used to determine how many colors the gradient will
         //have.
         var gradientFuncConstant = options.gradientFuncConstant || 1.618;
-    
         var that = rangedLinearWheel(options);
         
         //This is the color set we start of with. We will generate gradients for
@@ -621,6 +639,71 @@ var colorWheels = (function(){
         var greenMaxIndex = parentGreens.length - 1;
         var blueMaxIndex = parentBlues.length - 1;
         var largestIndex = Math.max(redMaxIndex, greenMaxIndex, blueMaxIndex);
+        
+        
+        /*
+                'radios' : [{
+                    'value' : 'current-next',
+                    'title' : 'Current -> Next'   
+                },{
+                    'value' : 'start-current',
+                    'title' : 'Start -> Current'   
+                },{
+                    'value' : 'current-end',
+                    'title' : 'Current -> End'   
+                },{
+                    'value' : 'start-end',
+                    'title' : 'Start -> End'   
+        */
+        
+        //There are four different ways the gradientDifference can be assigned.
+        //Initially, when this gradientWheel is made, it uses a rangedLinearWheel
+        //to get starting colors. e.g. If we need to color 10 objects, rangedLinearWheel,
+        //will create a collection of 10 colors (from start color to final color as set in options).
+        //gradientWheel can then use this array of colors to create more in between colors.
+        //This works as follows:
+        //current-next: In this setting, a rangedLinearWheel color collection is generated for every adjacent
+        //color. e.g. If the parent color is a bit like this:
+        // [color1, color2, color3, color4, color5, color6], 
+        // then gradientWheel, will make a collection a bit like
+        // [
+        //  [color1, color1.2, color1.4, color1.6, color1.8, color2]
+        //  [color2, color2.2, color2.4, color2.6, color2.8, color3]
+        // ...
+        // ]
+        // The decimal points are just to illustrate the changing number. The actual rate of change will likely be different.
+        // Also note that the number of inbetween colors changes in accordance with gradientFuncConstant. 
+        // So effectively speaking, you now have many more 'inbetween' colors. This means that the gradients made with this
+        // setting are not very colorful (as the color changes are really minute).
+        //
+        // start-current: In this setting, the first color used will always be the start color and not the adjacent one.
+        // so: for a parent collection like:
+        // [color1, color2, color3, color4, color5, color6], 
+        // you should get:
+        // [
+        //  [color1, color1.2, color1.4, color1.6, color1.8, color2]
+        //  [color1, color1.4, color1.8, color2.2, color2.6, color3]
+        // ...
+        // ] 
+        // 
+        // current-end: The opposite of start-current. The first color will be changing, but the final color will always be constant.
+        // [
+        //  [color1, color2, color3, color4, color5, color6]
+        //  [color2, color2.8, color3.6, color4.4, color5.2, color6]
+        // ...
+        // ] 
+        // start-current and current-end should create more obvious gradients with the former becoming more obvious as the wheel advances
+        // and the latter becoming less so.
+        // 
+        // start-end: Only creates a gradient between the start and end values.
+        // [
+        //  [color1, color2, color3, color4, color5, color6]
+        //  [color1, color2, color3, color4, color5, color6]
+        // ...
+        // ] 
+        // (Again, the size changes as the wheel progresses.)
+        
+        options.setDefault('gradientDifference', 'start-current');
     
         //This color array is going to be an array of 
         //rangedLinearWheel colorArrays.
@@ -677,12 +760,41 @@ var colorWheels = (function(){
                 }
             }
     
-            rWOptions.startingRed = colorsObject.startingRed;
-            rWOptions.startingGreen = colorsObject.startingGreen;
-            rWOptions.startingBlue = colorsObject.startingBlue;
-            rWOptions.finalRed = colorsObject.finalRed;
-            rWOptions.finalGreen = colorsObject.finalGreen;
-            rWOptions.finalBlue = colorsObject.finalBlue;
+            //The addition of gradientDifference is a bit hacky.
+            //A lot of the computation for current-next is done
+            //even when it is not required (like for other gradientDifferences)
+            //as that was the only mode of operation
+            //at first and changing it is not super easy.
+            if(options.gradientDifference === 'start-current' || options.gradientDifference === 'start-end'){
+                //The first value is the starting color.
+                rWOptions.startingRed = options.startingRed;
+                rWOptions.startingGreen = options.startingGreen;
+                rWOptions.startingBlue = options.startingBlue;
+            }
+            else{
+                rWOptions.startingRed = colorsObject.startingRed;
+                rWOptions.startingGreen = colorsObject.startingGreen;
+                rWOptions.startingBlue = colorsObject.startingBlue;
+            }
+            
+            if(options.gradientDifference === 'current-next'){
+                rWOptions.finalRed = colorsObject.finalRed;
+                rWOptions.finalGreen = colorsObject.finalGreen;
+                rWOptions.finalBlue = colorsObject.finalBlue;
+            }
+            else{
+                 if(options.gradientDifference === 'start-current'){
+                    rWOptions.finalRed = colorsObject.startingRed;
+                    rWOptions.finalGreen = colorsObject.startingGreen;
+                    rWOptions.finalBlue = colorsObject.startingBlue;
+                 }
+                 else{
+                    rWOptions.finalRed = options.finalRed;
+                    rWOptions.finalGreen = options.finalGreen;
+                    rWOptions.finalBlue = options.finalBlue;
+                 }
+            }
+
             rWOptions.stepsRequired = colorsObject.stepsRequired;
     
             var rangedWheel = rangedLinearWheel(rWOptions);
@@ -708,7 +820,7 @@ var colorWheels = (function(){
             };
             count += 1;
             ourColorArray.push(getColorGradient(colors));
-        }
+        };
     
         var currentIndex = 0;
         var currentValue = ourColorArray[0];
@@ -763,12 +875,13 @@ var colorWheels = (function(){
         that.getHexList = getCurrentHexList;
     
         return that; 
-    }
+    };
     
     return {
         multiIncreaseWheel : multiIncreaseWheel,
         linearIncreaseWheel : linearIncreaseWheel,
         rangedLinearWheel : rangedLinearWheel,
+        shortestRangedLinearWheel : shortestRangedLinearWheel,
         gradientWheel : gradientWheel
     }
 })();
