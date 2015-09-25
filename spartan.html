@@ -1,22 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
   <link rel="stylesheet" type="text/css" href="style.css">
-  <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.11.4/themes/ui-darkness/jquery-ui.css">
 </head>
 <body>
 <!-- Source for export stuff: http://stackoverflow.com/a/14175397 -->
 
 <!--
   cus_ : id denoting any option related to the stroke of the curve.
-  sqs_ : id denoting any option related to the stroke property of the squares.
   sqf_ : id denoting any option related to the fill property of the squares.
   -->
 <div id="raphaelDiv" style="display:none;"></div>
 <img id="myImg" src="" style="display:none;">
-<div id="settings">
-  <div id="accordion">
+<div id="settings"><div align="center">
     <h3>Paper Size</h3>
     <div>
       <div class="labelInputPair" align="center">
@@ -47,13 +43,12 @@
         <input type="radio" name="spDirection" value="CCW">CCW
       </div>
       <div align="center" class="labelSelect"><label>Brush</label>
-        <select id="cus_wheelSelect">
+        <select id="cus_wheelSelect" onchange="FrontPageWorks.wheelChange(this, 'cus_'); return false;">
           <option value="singleColor" selected="true">Single Color</option>
           <option value="multiIncreaseWheel"> Multi Increase Wheel</option>
           <option value="linearIncreaseWheel">Linear Increase Wheel</option>
           <option value="rangedLinearWheel">Ranged Linear Wheel</option>
           <option value="shortestRangedLinearWheel">Shortest R. Linear Wheel</option>
-          <option value="listWheel">Color List</option>
         </select> 
       </div>
       <div class="labelInputPair" >
@@ -74,13 +69,12 @@
     <h3>Square Stroke</h3>
     <div>
       <div align="center" class="labelSelect"><label>Brush</label>
-        <select id="sqs_wheelSelect">
+        <select id="sqs_wheelSelect" onchange="FrontPageWorks.wheelChange(this, 'sqs_'); return false;">
           <option value="singleColor" selected="true">Single Color</option>
           <option value="multiIncreaseWheel"> Multi Increase Wheel</option>
           <option value="linearIncreaseWheel">Linear Increase Wheel</option>
           <option value="rangedLinearWheel">Ranged Linear Wheel</option>
           <option value="shortestRangedLinearWheel">Shortest R. Linear Wheel</option>
-          <option value="listWheel">Color List</option>
         </select> 
       </div>
       <div class="labelInputPair">
@@ -101,14 +95,13 @@
     <h3>Square Fill</h3>
     <div>
       <div align="center" class="labelSelect"><label>Brush</label>
-        <select id="sqf_wheelSelect">
+        <select id="sqf_wheelSelect" onchange="FrontPageWorks.wheelChange(this, 'sqf_'); return false;">
           <option value="singleColor">Single Color</option>
           <option value="multiIncreaseWheel"> Multi Increase Wheel</option>
           <option value="linearIncreaseWheel">Linear Increase Wheel</option>
           <option value="rangedLinearWheel" selected="true">Ranged Linear Wheel</option>
           <option value="shortestRangedLinearWheel">Shortest R. Linear Wheel</option>
           <option value="gradientWheel">Gradient Wheel</option>
-          <option value="listWheel">Color List</option>
         </select> 
       </div>
       <div class="labelInputPair">
@@ -122,14 +115,25 @@
       <div id="sqf_wheelOptions"></div>
       <div id="sqf_subOptions" class="labelInputPair"></div>
     </div>
-  </div>
-  <button id="runButton" onclick="FrontPageWorks.run()">RUN</button>
-  <button id="pngButton" onclick="FrontPageWorks.toPNG()">To PNG</button>
- </div>
+   <div align="center">
+    <button onclick="FrontPageWorks.run()">RUN</button>
+   </div> 
+   <div align="center">
+    <button onclick="FrontPageWorks.toPNG()">To PNG</button>
+   </div> 
+</div></div>
 
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    console.log("hello");
+    FrontPageWorks.setupOrientationDisplay();
+    FrontPageWorks.wheelChange(document.getElementById('cus_wheelSelect'), 'cus_');
+    FrontPageWorks.wheelChange(document.getElementById('sqs_wheelSelect'), 'sqs_');
+    FrontPageWorks.wheelChange(document.getElementById('sqf_wheelSelect'), 'sqf_');
+    return false;
+  }); 
+ </script>
 <script src="utility.js" ></script>
-<script src="http://code.jquery.com/jquery-2.1.4.js"></script>
-<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
 <script src="colorWheel.js"></script>
 <script src="raphael-min.js"></script>
 <script src="Raphael.Export/raphael.export.js"></script>
@@ -140,65 +144,5 @@
 <script src="colorMaster.js"></script>
 <script src="spiral.js" ></script>
 <script src="frontPageWorks.js" ></script>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    console.log("hello");
-    
-    //This sets up the little boxes showing off possible orientations.
-    FrontPageWorks.setupOrientationDisplay();
-    
-    //Turn the settings menu into an accordion via JQuery.
-    $( "#accordion" ).accordion({
-      heightStyle: "content",
-      collapsible: true  
-    });
-    
-    //These calls are to the dropdown handlers, so sensible options are displayed on
-    //page load. Cache the document.getElementByID calls since they are used again
-    //and again by the JQuery UI change function. (I couldn't figure out how to get the
-    //dropdown object from the ui object.)
-    
-    var cusWheelSelect = document.getElementById('cus_wheelSelect');
-    var sqsWheelSelect = document.getElementById('sqs_wheelSelect');
-    var sqfWheelSelect = document.getElementById('sqf_wheelSelect');
-    
-    FrontPageWorks.wheelChange(cusWheelSelect, 'cus_');
-    FrontPageWorks.wheelChange(sqsWheelSelect, 'sqs_');
-    FrontPageWorks.wheelChange(sqfWheelSelect, 'sqf_');
-    
-    //Turns the selects into JQuery select menu items.
-    
-    $( "#cus_wheelSelect" ).selectmenu({
-      width : '300px',
-      change : function(event, ui){
-        FrontPageWorks.wheelChange(cusWheelSelect, 'cus_');
-        return false;
-      }
-    });
-    
-    $( "#sqs_wheelSelect" ).selectmenu({
-      width : '300px',
-      change : function(event, ui){
-        FrontPageWorks.wheelChange(sqsWheelSelect, 'sqs_');
-        return false;
-      }
-    });
-    
-    $( "#sqf_wheelSelect" ).selectmenu({
-      width : '300px',
-      change : function(event, ui){
-        FrontPageWorks.wheelChange(sqfWheelSelect, 'sqf_');
-        return false;
-      }
-    });
-    
-    $('#runButton').button().click(FrontPageWorks.run);
-    $('#pngButton').button().click(FrontPageWorks.toPNG);
-    
-    return false;
-  }); 
-
- </script>
 </body>
 </html>

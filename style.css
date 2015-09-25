@@ -3,13 +3,83 @@ body {
     padding: 0;
 }
 
+select {
+    margin: 2px;
+}
+
+button {
+    margin : 5px;
+}
+
+.labelInputPair {
+    margin : 5%;
+}
+
+.labelSelect{
+    margin : 5%;
+}
+
+/*Sorta taken from http://stackoverflow.com/a/23530316*/
+.labelInputPair label{
+    display: inline-block;
+    vertical-align: middle;
+    width:60%;
+    text-align: center;
+}
+
+.labelInputPair input, select{
+    display: inline-block;
+    vertical-align: middle;
+    width:30%;
+}
+
+.colorListLabel {
+    display: block;
+    
+}
+
+.colorListLabel input{
+    width:30%;
+    vertical-align: middle;
+    display : inline-block;
+}
+
+.colorListLabel textarea{
+    width:40%;
+    height: 200px;
+    display : inline-block;
+    vertical-align: middle;
+    overflow: auto;
+}
+
+.colorListLabel button{
+    width:20%;
+    display : inline-block;
+    vertical-align: middle;
+}
+
+.colorListText {
+    display : inline-block;
+    width:30%;
+}
+
+.colorListText input {
+    height:300px;
+    width:100%;
+}
+
+.subTitle{
+    text-align: center;
+}
+
 /* Take from : http://stackoverflow.com/a/12204808
 */
 #settings{
     height:auto;
-    width:15%;
-    background-color:gray;
+    width:20%;
+    background-color:#525252;
     float:right;
+    margin:5px;
 }
 
 .labelNum{
@@ -26,17 +96,19 @@ body {
     display:inline-block;
 }
 
-/*http://stackoverflow.com/a/4639239*/
-.radioDiv * {
-    vertical-align: middle;
+.radioDiv{
+    border-top-style: dotted;
+    border-top-color: '#7A7A7A';
+    border-bottom-style: dotted;
+    border-bottom-color: '#7A7A7A';
+    margin:5px;
+    padding:5px;
 }
 
-.radioDiv input {
-  clear:left;
-}
-.radioDiv label { 
-  display:inline-block;
-}
 
 /*http://stackoverflow.com/a/890463*/
 input[type="radio"], input[type="checkbox"] {vertical-align: middle; margin: 0px; } 
+
+input[type="text"], input[type="number"] {
+    margin: 0.2em;
+}

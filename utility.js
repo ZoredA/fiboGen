@@ -1,11 +1,17 @@
 //This file contains stuff added to prototypes and what not for the sake of
 //convenience.
 //Most of these are taken from JavaScript The Good Parts by Douglas Crockford
-
+//Originall I was using this to modify object.prototype and
+//that broke jQuery (woops!), so I took a hint from here
+//http://stackoverflow.com/a/5890983
 Function.prototype.method = function (name, func) {
     if (!this.prototype[name]){
-        this.prototype[name] = func;
-        return this;
+        //this.prototype[name] = func;
+        //return this;
+        Object.defineProperty(Object.prototype, name, {
+            value : func,
+            enumerable : false
+        })
     }
 };
 
@@ -59,4 +65,4 @@ Object.method('setDefault', function(property, valueToSet){
     if (this[property] === undefined){
         this[property] = valueToSet;
     }
-})
+});

@@ -152,40 +152,91 @@ var FrontPageWorks = (function(){
         return nabbedOptions;
     };
     
+    var createColorList = function(parent, optionID, optionDesc, idPrefix){
+        var listDiv = document.createElement('div');
+        listDiv.className = "colorListLabel";
+        
+        var colorInput = document.createElement('input');
+        //colorInput.className = "color";
+        colorInput.id = idPrefix + "listAddColor";
+        var picker = new jscolor.color(colorInput, {})
+        picker.fromString(optionDesc.value);
+        
+        var button = document.createElement('button');
+        button.appendChild(document.createTextNode('->'));
+
+        var textArea = document.createElement('textarea');
+        textArea.id = idPrefix + optionID;
+        
+        button.onclick = function(){
+            if (textArea.value){
+                textArea.value =  textArea.value + wheelOptions.listDelimiter + "#" + colorInput.value;    
+            }
+            else{
+                textArea.value =  '#' + colorInput.value;
+            }
+        };
+        
+        listDiv.appendChild(colorInput);
+        listDiv.appendChild(button);
+        listDiv.appendChild(textArea);
+        parent.appendChild(listDiv);
+    };
+    
     var createRadios = function(parent, optionDesc, idPrefix){
-        var newDiv = document.createElement('div');
-        newDiv.id = idPrefix + optionDesc.name;
-        newDiv.className = "radioDiv";
+        var radioDiv = document.createElement('div');
+        radioDiv.id = idPrefix + optionDesc.name;
+        radioDiv.className = "radioDiv";
         var newTextNode = document.createTextNode(optionDesc.title);
-        parent.appendChild(newDiv);
-        newDiv.appendChild(newTextNode);
-        newDiv.appendChild(document.createElement('br'));
+        var newTitleDiv = document.createElement('div');
+        newTitleDiv.appendChild(newTextNode);
+        newTitleDiv.className = "subTitle";
+        parent.appendChild(radioDiv);
+        radioDiv.appendChild(newTitleDiv);
         var radiosRequired = optionDesc.radios;
+        var selectedRadio = optionDesc.selected;
         for(var i = 0; i < radiosRequired.length; i++){
             var newNode = document.createElement('input');
             newNode.type = 'radio';
             newNode.name = optionDesc.name;
             newNode.value = radiosRequired[i].value;
             newNode.id = idPrefix + radiosRequired[i].value;
+            
+            if(newNode.value === selectedRadio){
+                newNode.checked = true; 
+            }
+            
             var newLabelNode = document.createElement('label');
-            newLabelNode.for = idPrefix + radiosRequired[i].value
+            newLabelNode.htmlFor = idPrefix + radiosRequired[i].value;
             newLabelNode.appendChild(document.createTextNode(radiosRequired[i].title));
-            newDiv.appendChild(newNode);
+            
+            var newDiv = document.createElement('div');
+            newDiv.className = "labelInputPair";
             newDiv.appendChild(newLabelNode);
-            newDiv.appendChild(document.createElement('br'));
+            newDiv.appendChild(newNode);
+            
+            radioDiv.appendChild(newDiv);
         };
     }
     
     var createParam = function(parent, optionID, optionDesc, idPrefix){
         if (optionDesc.type === 'select'){
-            createDropdown(parent, idPrefix + optionID, optionDesc, idPrefix);
+            createDropdown(parent, optionID, optionDesc, idPrefix);
             return;
         }
         if (optionDesc.type === 'radio'){
             createRadios(parent, optionDesc, idPrefix);
             return;
         }
+        if (optionDesc.type === 'colorList'){
+            createColorList(parent, optionID, optionDesc, idPrefix);
+            return;
+        }
+        var newLabel = document.createElement('label');
         var newTextNode = document.createTextNode(optionDesc.name);
+        newLabel.appendChild(newTextNode);
+        newLabel.htmlFor = idPrefix + optionID;
+        
         var newNode = document.createElement('input');
         newNode.type = optionDesc.type;
         newNode.id = idPrefix + optionID;
@@ -195,9 +246,13 @@ var FrontPageWorks = (function(){
         else{
             newNode.value = optionDesc.value;
         }
-        parent.appendChild(newTextNode);
-        parent.appendChild(newNode);
-        parent.appendChild(document.createElement('br'));
+        
+        var newDiv = document.createElement('div');
+        newDiv.className = "labelInputPair";
+        newDiv.appendChild(newLabel);
+        newDiv.appendChild(newNode);
+        parent.appendChild(newDiv);
+        //parent.appendChild(document.createElement('br'));
     }
     
     var subOptionHandler = function(parentDropdown, idPrefix){
@@ -221,8 +276,15 @@ var FrontPageWorks = (function(){
     //This requires the id of the dropdown to be created, but also needs idPrefix 
     //as that value is then passed on to subOptionHandler.
     var createDropdown = function(parentElement, dropdownID, dropdownInfo, idPrefix ){
+        var dropdownDiv = document.createElement('div');
+        dropdownDiv.className = "labelInputPair";
+        
+        var dropdownLabel = document.createElement('label');
+        dropdownLabel.appendChild(document.createTextNode(dropdownInfo.name));
+        dropdownLabel.htmlFor = idPrefix + dropdownID;
+        
         var newDropdown = document.createElement('select');
-        newDropdown.id = dropdownID;
+        newDropdown.id = idPrefix + dropdownID;
         var options = dropdownInfo.values;
         for(var i = 0; i < options.length; i++){
             var newOption = document.createElement('option');
@@ -233,14 +295,17 @@ var FrontPageWorks = (function(){
                 newDropdown.options[i].selected = true;
             }
         };
-        parentElement.html = '';
-        parentElement.appendChild(newDropdown);
+        
+        dropdownDiv.appendChild(dropdownLabel);
+        dropdownDiv.appendChild(newDropdown);
+        
+        parentElement.appendChild(dropdownDiv);
         //This onchange handler deals with suboptions, or options
         //required by an option. e.g. A radial gradient has different
         //attributes than a linear one.
         if(dropdownInfo.subOptions){
             newDropdown.onchange = function(){subOptionHandler(newDropdown, idPrefix)};
-            subOptionHandler(newDropdown, idPrefix); //Call the sub handler, so they options are there from the get go.
+            subOptionHandler(newDropdown, idPrefix); //Call the sub handler, so the options are there from the get go.
         }
     };
     

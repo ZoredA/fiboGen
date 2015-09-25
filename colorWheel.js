@@ -8,7 +8,17 @@ var wheelTypes = (function(){
 
 var wheelOptions = (function(){
     return {
+        //This is only used by color list.
+        listDelimiter : ';',
         options : {
+            //Technically, colorStartNum is a property only colorMaster.js
+            //cares about, but I am placing it here mostly out of laziness
+            //and because it is sort of relevant.
+            colorStartNum : {
+                'type' : 'number',
+                'value' : 4,
+                'name' : 'Start at'
+            },
             redIncreaseFactor : {
                 'type' : 'number',
                 'value' : 2,
@@ -34,14 +44,28 @@ var wheelOptions = (function(){
                 'checked' : false,
                 'name' : 'Go Backwords'
             },
+            loop : {
+                'type' : 'checkbox',
+                'checked' : false,
+                'name' : 'Loop'
+            },
+            colorList : {
+                'type' : 'colorList',
+                'value' : 'FFFFFF'
+            },
             gradientStartIndex : {
                 'type' : 'number',
                 'value' : 3,
                 'name' : 'Gradient Start Index'
             },
-            gradientFuncConstant : {
+            gradientFuncExponent : {
                 'type' : 'number',
                 'value' : 1.618,
+                'name' : 'Gradient Function Constant'
+            },
+            gradientFuncConstant : {
+                'type' : 'number',
+                'value' : 0,
                 'name' : 'Gradient Function Constant'
             },
             gradientDifference : {
@@ -117,7 +141,7 @@ var wheelOptions = (function(){
             },
             spreadMethod : {
                 'type' : 'select',
-                'selected' : 'reflect',
+                'selected' : 'pad',
                 'values' : [{
                     'value' : 'pad',
                     'name' : 'Pad'
@@ -129,15 +153,28 @@ var wheelOptions = (function(){
                     'name' : 'Repeat'
                 }],
                 'name' : 'Spread Method'
-            }
+            },
+            rangedWheelToUse : {
+                'type' : 'select',
+                'selected' : 'rangedLinearWheel',
+                'name' : 'Difference Wheel',
+                'values' : [{
+                    'value' : 'rangedLinearWheel',
+                    'name' : 'Ranged Linear Wheel'
+                },{
+                    'value' : 'shortestRangedLinearWheel',
+                    'name' : 'Shortest R Linear Wheel'
+                }],
+            },
         },
        optionMap : {
-           'multiIncreaseWheel' : ['redIncreaseFactor', 'greenIncreaseFactor', 'blueIncreaseFactor'],
-           'linearIncreaseWheel' : ['redIncreaseFactor', 'greenIncreaseFactor', 'blueIncreaseFactor'],
-           'rangedLinearWheel' : ['equalIncrease', 'backwords'],
-           'gradientWheel' : ['equalIncrease', 'backwords', 'gradientStartIndex', 'gradientFuncConstant','gradientDifference','gradientType', 'spreadMethod'],
-           'shortestRangedLinearWheel' : [],
-           'singleColor' : []
+           'multiIncreaseWheel' : ['colorStartNum', 'redIncreaseFactor', 'greenIncreaseFactor', 'blueIncreaseFactor'],
+           'linearIncreaseWheel' : ['colorStartNum', 'redIncreaseFactor', 'greenIncreaseFactor', 'blueIncreaseFactor'],
+           'rangedLinearWheel' : ['colorStartNum', 'equalIncrease', 'backwords'],
+           'gradientWheel' : ['colorStartNum', 'equalIncrease', 'backwords', 'gradientStartIndex','gradientFuncExponent', 'gradientFuncConstant', 'rangedWheelToUse','gradientDifference','gradientType', 'spreadMethod'],
+           'shortestRangedLinearWheel' : ['colorStartNum'],
+           'singleColor' : ['colorStartNum'],
+           'listWheel' : ['colorStartNum', 'loop', 'colorList']
        }
     };
 })();
@@ -345,7 +382,7 @@ var colorWheels = (function(){
         };
         that.getNextValue = getNextLinear;
         return that;
-    }
+    };
     
     //A collection of common functions that ranged linear type wheels
     //can use. Not meant to be used on its own. A prototype in the general
@@ -601,6 +638,9 @@ var colorWheels = (function(){
     var gradientWheel = function(options) {
         console.log("Making grad");
         console.dir(options);
+        //We need this option that is otherwise only used by colorMaster.js 
+        //to make sure our gradients start at the right point.
+        options.setDefault('colorStartNum', 1); 
         //This specifies the index at which we start making gradients.
         //This exists because in applications like the fibonacchi spirals this
         //file was originally made for, the first couple of colors are
@@ -613,10 +653,31 @@ var colorWheels = (function(){
             console.log("Gradient start index has to be at least 1");
             gradientStartIndex = 1;
         }
+        if (options.colorStartNum > 1){
+            gradientStartIndex = gradientStartIndex + options.colorStartNum - 1;
+        } 
+        options.setDefault('gradientFuncExponent', 1);
+        var gradientFuncExponent = options.gradientFuncExponent;
+        
         //This gets used to determine how many colors the gradient will
         //have.
         var gradientFuncConstant = options.gradientFuncConstant || 1.618;
-        var that = rangedLinearWheel(options);
+        
+        
+        options.setDefault('rangedWheelToUse', 'rangedLinearWheel');
+        var wheelToUse = options.rangedWheelToUse;
+        var that;
+        var wheelFunction;
+        if (wheelToUse === 'rangedLinearWheel')
+        {
+            that = rangedLinearWheel(options);
+            wheelFunction = rangedLinearWheel;
+        }
+        else
+        {
+            that = shortestRangedLinearWheel(options);
+            wheelFunction = shortestRangedLinearWheel;
+        }
         
         //This is the color set we start of with. We will generate gradients for
         //every pair of elements inside this object.
@@ -639,22 +700,6 @@ var colorWheels = (function(){
         var greenMaxIndex = parentGreens.length - 1;
         var blueMaxIndex = parentBlues.length - 1;
         var largestIndex = Math.max(redMaxIndex, greenMaxIndex, blueMaxIndex);
-        
-        
-        /*
-                'radios' : [{
-                    'value' : 'current-next',
-                    'title' : 'Current -> Next'   
-                },{
-                    'value' : 'start-current',
-                    'title' : 'Start -> Current'   
-                },{
-                    'value' : 'current-end',
-                    'title' : 'Current -> End'   
-                },{
-                    'value' : 'start-end',
-                    'title' : 'Start -> End'   
-        */
         
         //There are four different ways the gradientDifference can be assigned.
         //Initially, when this gradientWheel is made, it uses a rangedLinearWheel
@@ -695,7 +740,7 @@ var colorWheels = (function(){
         // start-current and current-end should create more obvious gradients with the former becoming more obvious as the wheel advances
         // and the latter becoming less so.
         // 
-        // start-end: Only creates a gradient between the start and end values.
+        // start-end: Only creates a gradient between the start and end values. This will generally lead to the most obvious gradients.
         // [
         //  [color1, color2, color3, color4, color5, color6]
         //  [color1, color2, color3, color4, color5, color6]
@@ -797,7 +842,7 @@ var colorWheels = (function(){
 
             rWOptions.stepsRequired = colorsObject.stepsRequired;
     
-            var rangedWheel = rangedLinearWheel(rWOptions);
+            var rangedWheel = wheelFunction(rWOptions);
             var colorArrays = rangedWheel.getColorArrays();
             //Utility function found in utility.js.
             //This makes sure the end sizes will all be the same.
@@ -877,12 +922,82 @@ var colorWheels = (function(){
         return that; 
     };
     
+    var listWheel = function(options){
+        
+        options = options || {};
+        options.setDefault('startingRed', 255);
+        options.setDefault('startingGreen', 255);
+        options.setDefault('startingBlue', 255);
+        
+        options.setDefault('colorList', '#FFFFFF');
+        options.setDefault('loop', false);
+        
+        var colorListStr = options.colorList;
+        var colorList = colorListStr.split(wheelOptions.listDelimiter);
+        var loop = options.loop;
+        
+        //These colors are returned if the loop option is turned off.
+        //Basically the start color box used by other wheels is the
+        //'default' color box for this one.
+        var defaultColors = {
+            red : options.startingRed,
+            green : options.startingGreen,
+            blue : options.startingBlue
+        };
+        var defaultHex = rgbToHex(defaultColors.red, defaultColors.green, defaultColors.blue);
+        
+        var currentIndex = 0;
+        
+        var getRgb = function(){
+            //if something like a gradient or some other non hex value is in there,
+            //this will fail.
+            return hexToRgbObject(colorList[currentIndex]);
+        };
+        
+        //This can and will return anything in the list including gradients and whatever else.
+        var getHex = function(){
+            if (currentIndex === colorList.length){
+                if (loop){
+                    return colorList[currentIndex - 1];
+                }
+                return defaultHex;
+            }
+            return colorList[currentIndex];
+        };
+        
+        var advance = function(){
+            if (currentIndex === colorList.length){
+                //At the maximum index already.
+                if (loop){
+                    currentIndex = 0;
+                    return getRgb();
+                }
+                return defaultColors;
+            }
+            currentIndex = currentIndex + 1;
+            return getRgb();
+        };
+        
+        var reset = function(){
+            currentIndex = 0;
+        }
+        
+        var that = {
+            advance : advance,
+            getHex : getHex,
+            getRgb : getRgb,
+            reset : reset
+        };
+        return that;
+    };
+    
     return {
         multiIncreaseWheel : multiIncreaseWheel,
         linearIncreaseWheel : linearIncreaseWheel,
         rangedLinearWheel : rangedLinearWheel,
         shortestRangedLinearWheel : shortestRangedLinearWheel,
-        gradientWheel : gradientWheel
+        gradientWheel : gradientWheel,
+        listWheel : listWheel
     }
 })();
 
