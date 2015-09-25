@@ -61,7 +61,7 @@ var wheelOptions = (function(){
             gradientFuncExponent : {
                 'type' : 'number',
                 'value' : 1.618,
-                'name' : 'Gradient Function Constant'
+                'name' : 'Gradient Function Exponent'
             },
             gradientFuncConstant : {
                 'type' : 'number',
@@ -171,7 +171,7 @@ var wheelOptions = (function(){
            'multiIncreaseWheel' : ['colorStartNum', 'redIncreaseFactor', 'greenIncreaseFactor', 'blueIncreaseFactor'],
            'linearIncreaseWheel' : ['colorStartNum', 'redIncreaseFactor', 'greenIncreaseFactor', 'blueIncreaseFactor'],
            'rangedLinearWheel' : ['colorStartNum', 'equalIncrease', 'backwords'],
-           'gradientWheel' : ['colorStartNum', 'equalIncrease', 'backwords', 'gradientStartIndex','gradientFuncExponent', 'gradientFuncConstant', 'rangedWheelToUse','gradientDifference','gradientType', 'spreadMethod'],
+           'gradientWheel' : ['colorStartNum', 'equalIncrease', 'backwords', 'gradientFuncExponent', 'gradientFuncConstant', 'rangedWheelToUse','gradientDifference','gradientType', 'spreadMethod'],
            'shortestRangedLinearWheel' : ['colorStartNum'],
            'singleColor' : ['colorStartNum'],
            'listWheel' : ['colorStartNum', 'loop', 'colorList']
@@ -638,31 +638,15 @@ var colorWheels = (function(){
     var gradientWheel = function(options) {
         console.log("Making grad");
         console.dir(options);
-        //We need this option that is otherwise only used by colorMaster.js 
-        //to make sure our gradients start at the right point.
-        options.setDefault('colorStartNum', 1); 
-        //This specifies the index at which we start making gradients.
-        //This exists because in applications like the fibonacchi spirals this
-        //file was originally made for, the first couple of colors are
-        //insignificant due to the small size of the squares being colored.
-        //Note the first value can't have a gradient because there is nothing to
-        //change from..though maybe the final value could be used as a starting
-        //point in that case.
-        var gradientStartIndex = options.gradientStartIndex || 9;
-        if (gradientStartIndex < 1){
-            console.log("Gradient start index has to be at least 1");
-            gradientStartIndex = 1;
-        }
-        if (options.colorStartNum > 1){
-            gradientStartIndex = gradientStartIndex + options.colorStartNum - 1;
-        } 
-        options.setDefault('gradientFuncExponent', 1);
+        
+        options.setDefault('gradientFuncExponent', 0);
         var gradientFuncExponent = options.gradientFuncExponent;
         
+        options.setDefault('gradientFuncConstant', 1);
         //This gets used to determine how many colors the gradient will
         //have.
-        var gradientFuncConstant = options.gradientFuncConstant || 1.618;
-        
+        var gradientFuncConstant = options.gradientFuncConstant;
+        console.log(gradientFuncConstant);
         
         options.setDefault('rangedWheelToUse', 'rangedLinearWheel');
         var wheelToUse = options.rangedWheelToUse;
@@ -690,8 +674,7 @@ var colorWheels = (function(){
         //Note: The above arrays aren't necessarily have to be the same size, so we
         //have to guard against that.
         var parentColorArrays = that.getColorArrays();
-        console.log("Parent color array");
-        console.dir(parentColorArrays);
+
         var parentReds = parentColorArrays.reds;
         var parentGreens = parentColorArrays.greens;
         var parentBlues = parentColorArrays.blues;
@@ -768,24 +751,11 @@ var colorWheels = (function(){
         //  i.e. Each index after 0, is rangedLinearWheel( (i-1) -> (i) )
         //]
         var ourColorArray = [];
-    
-        // Generate the colors for the indices that won't have gradients.
-        for (var i = 0; i < gradientStartIndex; i++){
-            // We need to guard against the case that the gradientStartIndex
-            // is greater than the size of an array especially because
-            // of the equalIncrease option that could have been passed
-            // to rangedLinearColorWheel.
-            ourColorArray.push({
-                'reds' : [parentReds[i] || parentReds[redMaxIndex]],
-                'greens' : [parentGreens[i] || parentGreens[greenMaxIndex]],
-                'blues' : [parentBlues[i] || parentBlues[blueMaxIndex]],
-            });
-        }
-    
+      
         //Colors Object should have startingRed,startingGreen, startingBlue
         //as well as finalRed,..., and stepsRequired.
         var getColorGradient = function(colorsObject){
-            if (colorsObject.stepsRequired === 0) {
+            if (colorsObject.stepsRequired < 1) {
                 return {
                     reds : [colorsObject.finalRed],
                     greens : [colorsObject.finalGreen],
@@ -803,7 +773,7 @@ var colorWheels = (function(){
                 if (options.hasOwnProperty(attr)){
                     rWOptions[attr] = options[attr];
                 }
-            }
+            };
     
             //The addition of gradientDifference is a bit hacky.
             //A lot of the computation for current-next is done
@@ -850,10 +820,11 @@ var colorWheels = (function(){
             return colorArrays;
         }
     
-        var count = 2;
+        var count = 1;
         console.log("Largest index: " + largestIndex);
-        for (var i = gradientStartIndex; i <= largestIndex; i++){
-            var gradientSteps = Math.ceil(gradientFuncConstant * (count));
+        for (var i = 0; i <= largestIndex; i++){
+            //var gradientSteps = Math.ceil(gradientFuncConstant * (count));
+            var gradientSteps = Math.ceil( Math.pow(count, gradientFuncExponent) + gradientFuncConstant  );
             var colors = {
                 startingRed : parentReds[i-1] || parentReds[redMaxIndex],
                 startingGreen : parentGreens[i-1] || parentGreens[greenMaxIndex],
