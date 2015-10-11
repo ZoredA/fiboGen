@@ -323,7 +323,6 @@ var spiralMaster = function(options) {
             //int and not a string.
             gradObject.stepsRequired = parseInt(gradObject.stepsRequired);
             gradObject.setDefault('rangedWheelToUse', 'rangedLinearWheel');
-            console.log(gradObject.initialColor);
             var rangedColorOptions = {};
             var hexStartColor = gradObject.initialColor.replace('#','');
             var hexEndColor = gradObject.finalColor.replace('#','');
@@ -342,7 +341,6 @@ var spiralMaster = function(options) {
             //this call here will fail. Please specify a ranged wheel such as 
             //rangedLinearWheel or shortestRangedLinearWheel.
             var colors = wheel.getColorArrays().hexList;
-            console.log(hexStartColor);
             createRadialElementTag(defsNode, colors, itemToColor, gradObject);
         }
         else{
@@ -359,7 +357,7 @@ var spiralMaster = function(options) {
             return;
         }
         var wheel = getColorWheel(r_colorWheel,objectCollection.length, options);
-        console.log("OBJECT SIZE");
+        console.log("Number of Raphael objects:");
         console.log(objectCollection.length);
         applyColors(wheel, objectCollection, "attr", "fill", postColorFN);
         //console.dir(wheel.getColorArrays());
@@ -405,11 +403,11 @@ var spiralMaster = function(options) {
         getHeight : function() { return r_height},
         getWidth : function() { return r_width},
         getOrientation : function() { return r_startingOrientation },
-        colorFill : colorRaphObjects,
-        colorStroke : colorRaphStrokes,
+        applyFill : colorRaphObjects,
+        applyStroke : colorRaphStrokes,
         getOneColor : r_getColor
     };
-}
+};
 
 
 

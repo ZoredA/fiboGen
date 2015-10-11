@@ -2,6 +2,7 @@ var wheelTypes = (function(){
     return {
         'ranged' : ['shortestRangedLinearWheel', 'rangedLinearWheel', 'gradientWheel'],
         'not ranged' : ['singleColor', 'multiIncreaseWheel', 'linearIncreaseWheel'],
+        'no color' : ['imageWheel'],        
         'default' : 'rangedLinearWheel'
     }
 })();
@@ -636,9 +637,6 @@ var colorWheels = (function(){
     // speaking be used to create a gradient of gradients.
     //
     var gradientWheel = function(options) {
-        console.log("Making grad");
-        console.dir(options);
-        
         options.setDefault('gradientFuncExponent', 0);
         var gradientFuncExponent = options.gradientFuncExponent;
         
@@ -646,7 +644,6 @@ var colorWheels = (function(){
         //This gets used to determine how many colors the gradient will
         //have.
         var gradientFuncConstant = options.gradientFuncConstant;
-        console.log(gradientFuncConstant);
         
         options.setDefault('rangedWheelToUse', 'rangedLinearWheel');
         var wheelToUse = options.rangedWheelToUse;
@@ -821,7 +818,6 @@ var colorWheels = (function(){
         }
     
         var count = 1;
-        console.log("Largest index: " + largestIndex);
         for (var i = 0; i <= largestIndex; i++){
             //var gradientSteps = Math.ceil(gradientFuncConstant * (count));
             var gradientSteps = Math.ceil( Math.pow(count, gradientFuncExponent) + gradientFuncConstant  );

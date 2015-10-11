@@ -106,7 +106,6 @@ var FrontPageWorks = (function(){
         nabbedOptions.startingGreen = initialColors.green;
         nabbedOptions.startingBlue = initialColors.blue;
     
-        console.dir(nabbedOptions);
         if(wheelTypes.ranged.indexOf(selectedWheel) > -1){
             var finalColors = hexToRgbObject(document.getElementById(idPrefix + 'finalColor').color.toString());
             nabbedOptions.finalRed = finalColors.red;

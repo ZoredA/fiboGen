@@ -710,8 +710,8 @@ var spiral = function(){
         //a callback function that do whatever else you may want (for each square).
         //In this case, we use it to set the stroke width, so we don't have to
         //loop a second time.
-        spMaster.squareColor.colorFill(bigRectangle.squares);
-        spMaster.squareStroke.colorStroke(bigRectangle.squares, function(square){
+        spMaster.squareColor.applyFill(bigRectangle.squares);
+        spMaster.squareStroke.applyStroke(bigRectangle.squares, function(square){
             square.attr('stroke-width', spMaster.squareStrokeWidth)
         });
         console.log("Done.");
@@ -747,9 +747,68 @@ var spiral = function(){
         }, 100);
     };
     
+    //This object creates image elements and overlays them on top of the squares.
+    var imageMaster = function(options) {
+        if (!options.fileList){
+            options.fileList = '';
+        }
+        var r_startingIndex = 0;
+        options.setDefault('fillStartNum', 1);
+        if (options.colorStartNum > 1){
+            //Internally, we are dealing with arrays, so 
+            //we need to subtract 1. Index should never be negative.
+            r_startingIndex = options.colorStartNum - 1;
+        }
+        options.setDefault('loop', false);
+        var loop = options.loop;
+        var fileList = options.fileList.split(',');
+        if (loop && !options.singleImage){
+            while(fileList.length < objectCollection.length){
+                //This is really inefficient, but fortunately the arrays are not so big
+                //so hopefully this won't cost us a lot. It will also likely result in fileList
+                //being bigger than necessary, but aside from feeling icky, it shouldn't have an impact in the end.
+                fileList = fileList.concat(fileList); 
+            };
+        }
+        return {
+            applyFill : function(objectCollection){
+                if(!objectCollection || !objectCollection.length || fileList.length){
+                    console.log("Empty collection passed in or no images given. Can't add images. Returning.")
+                    return ;
+                };
+                var paper = objectCollection[0].paper;
+                if (options.singleImage){
+                    var x = bigRectangle.x;
+                    var y = bigRectangle.y;
+                    var width = bigRectangle.width;
+                    var height = bigRectangle.height;
+                    var imageElement = paper.image(fileList[0], x, y, width, height );
+                    return [imageElement];
+                };
+                var elementList = [];
+                for(var i = r_startingIndex; i < objectCollection.length; i++){
+                    var currentSquare = objectCollection[i];
+                    var x = currentSquare.attrs.x;
+                    var y = currentSquare.attrs.y;
+                    var width = currentSquare.attrs.width;
+                    var height = currentSquare.attrs.height;
+                    var fileURI = fileList[i];
+                    if (!fileURI){
+                        return elementList;
+                    };
+                    var imageElement = paper.image(fileList[i], x, y, width, height);
+                    elementList.push(imageElement);
+                };
+                return elementList;
+            }
+        };
+    };
+
+    
     return {
+        'imageMaster' : imageMaster,
         'run' : run,
         'createSpiral' : createSpiral,
         'makePNG' : fiboToImage
-    }
+    };
 };
