@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<!-- Source for export stuff: http://stackoverflow.com/a/14175397 -->
+
+<!--
+  cus_ : id denoting any option related to the stroke of the curve.
+  sqf_ : id denoting any option related to the fill property of the squares.
+  -->
+<div id="raphaelDiv" style="display:none;"></div>
+<img id="myImg" src="" style="display:none;">
+<div id="settings"><div align="center">
+    <h3>Paper Size</h3>
+    <div>
+      <div class="labelInputPair" align="center">
+        <span>Height (px)</span>
+        <input type="number" id="height" value="1000">
+      </div>
+      <div class="labelInputPair" align="center">
+        <span>Width (px)</span>
+        <input type="number" id="width" value="1000">
+      </div>
+    </div>
+    <h3>Orientation</h3>
+    <div>
+      <h4>Starting Orientation</h4>
+      <div id="orientationBox" align="center"></div>
+      <div align="center" >
+        <input type="radio" name="orientation" value="A" checked="checked">A
+        <input type="radio" name="orientation" value="C">C<br>
+        <input type="radio" name="orientation" value="B">B
+        <input type="radio" name="orientation" value="D">D
+      </div>
+    </div>
+    <h3>Spiral Settings</h3>
+    <div>
+      <h4 align="center">Spiral Direction</h4>
+      <div align="center" >
+        <input type="radio" name="spDirection" value="CW" checked="checked">CW
+        <input type="radio" name="spDirection" value="CCW">CCW
+      </div>
+      <div align="center" class="labelSelect"><label>Brush</label>
+        <select id="cus_wheelSelect" onchange="FrontPageWorks.wheelChange(this, 'cus_'); return false;">
+          <option value="singleColor" selected="true">Single Color</option>
+          <option value="multiIncreaseWheel"> Multi Increase Wheel</option>
+          <option value="linearIncreaseWheel">Linear Increase Wheel</option>
+          <option value="rangedLinearWheel">Ranged Linear Wheel</option>
+          <option value="shortestRangedLinearWheel">Shortest R. Linear Wheel</option>
+        </select> 
+      </div>
+      <div class="labelInputPair" >
+        <label>Stroke Width</label>
+        <input id="curveStrokeWidth" type="text" value="1">
+      </div>
+      <div class="labelInputPair" >
+        <label>Starting Color</label>
+        <input class="color" id="cus_initialColor" value="#000000">
+      </div>
+      <div class="labelInputPair" id="cus_endingColorDiv">
+        <label>Final Color</label>
+        <input class="color" id="cus_finalColor" value="#ffffff">
+      </div>
+      <div id="cus_wheelOptions" ></div>
+      <div id="cus_subOptions" class="labelInputPair" style="display:none;"></div>
+    </div>
+    <h3>Square Stroke</h3>
+    <div>
+      <div align="center" class="labelSelect"><label>Brush</label>
+        <select id="sqs_wheelSelect" onchange="FrontPageWorks.wheelChange(this, 'sqs_'); return false;">
+          <option value="singleColor" selected="true">Single Color</option>
+          <option value="multiIncreaseWheel"> Multi Increase Wheel</option>
+          <option value="linearIncreaseWheel">Linear Increase Wheel</option>
+          <option value="rangedLinearWheel">Ranged Linear Wheel</option>
+          <option value="shortestRangedLinearWheel">Shortest R. Linear Wheel</option>
+        </select> 
+      </div>
+      <div class="labelInputPair">
+        <label>Stroke Width</label>
+        <input id="squareStrokeWidth" type="text" value="1">
+      </div>
+      <div class="labelInputPair">
+        <label>Starting Color</label>
+        <input class="color" id="sqs_initialColor" value="#000000">
+      </div>
+      <div class="labelInputPair" id="sqs_endingColorDiv">
+        <label>Final Color</label>
+        <input class="color" id="sqs_finalColor" value="#ffffff">
+      </div>
+      <div id="sqs_wheelOptions"></div>
+      <div id="sqs_subOptions" class="labelInputPair" style="display:none;"></div>
+    </div>
+    <h3>Square Fill</h3>
+    <div>
+      <div align="center" class="labelSelect"><label>Brush</label>
+        <select id="sqf_wheelSelect" onchange="FrontPageWorks.wheelChange(this, 'sqf_'); return false;">
+          <option value="singleColor">Single Color</option>
+          <option value="multiIncreaseWheel"> Multi Increase Wheel</option>
+          <option value="linearIncreaseWheel">Linear Increase Wheel</option>
+          <option value="rangedLinearWheel" selected="true">Ranged Linear Wheel</option>
+          <option value="shortestRangedLinearWheel">Shortest R. Linear Wheel</option>
+          <option value="gradientWheel">Gradient Wheel</option>
+        </select> 
+      </div>
+      <div class="labelInputPair">
+        <label>Starting Color</label>
+        <input class="color" id="sqf_initialColor" value="#000000">
+      </div>
+      <div class="labelInputPair" id="sqf_endingColorDiv">
+        <label>Final Color</label>
+        <input class="color" id="sqf_finalColor" value="#ffffff">
+      </div>
+      <div id="sqf_wheelOptions"></div>
+      <div id="sqf_subOptions" class="labelInputPair"></div>
+    </div>
+   <div align="center">
+    <button onclick="FrontPageWorks.run()">RUN</button>
+   </div> 
+   <div align="center">
+    <button onclick="FrontPageWorks.toPNG()">To PNG</button>
+   </div> 
+</div></div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    console.log("hello");
+    FrontPageWorks.setupOrientationDisplay();
+    FrontPageWorks.wheelChange(document.getElementById('cus_wheelSelect'), 'cus_');
+    FrontPageWorks.wheelChange(document.getElementById('sqs_wheelSelect'), 'sqs_');
+    FrontPageWorks.wheelChange(document.getElementById('sqf_wheelSelect'), 'sqf_');
+    return false;
+  }); 
+ </script>
+<script src="utility.js" ></script>
+<script src="colorWheel.js"></script>
+<script src="raphael-min.js"></script>
+<script src="Raphael.Export/raphael.export.js"></script>
+<script src="canvg/rgbcolor.js"></script>
+<script src="canvg/StackBlur.js"></script>
+<script src="canvg/canvg.js"></script>
+<script src="jscolor/jscolor.js"></script>
+<script src="colorMaster.js"></script>
+<script src="spiral.js" ></script>
+<script src="frontPageWorks.js" ></script>
+</body>
+</html>
