@@ -167,6 +167,15 @@ var wheelOptions = (function(){
                     'name' : 'Shortest R Linear Wheel'
                 }],
             },
+            fileList : {
+                'type' : 'fileList',
+                'name' : 'Selected Images'
+            },
+            imageStartNum :  {
+                'type' : 'number',
+                'value' : 3,
+                'name' : 'Starting Square'
+            },
         },
        optionMap : {
            'multiIncreaseWheel' : ['colorStartNum', 'redIncreaseFactor', 'greenIncreaseFactor', 'blueIncreaseFactor'],
@@ -175,7 +184,8 @@ var wheelOptions = (function(){
            'gradientWheel' : ['colorStartNum', 'equalIncrease', 'backwords', 'gradientFuncExponent', 'gradientFuncConstant', 'rangedWheelToUse','gradientDifference','gradientType', 'spreadMethod'],
            'shortestRangedLinearWheel' : ['colorStartNum'],
            'singleColor' : ['colorStartNum'],
-           'listWheel' : ['colorStartNum', 'loop', 'colorList']
+           'listWheel' : ['imageStartNum', 'loop', 'colorList'],
+           'imageWheel' : ['fileList', 'fillStartNum', 'loop']
        }
     };
 })();

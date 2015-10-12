@@ -753,23 +753,15 @@ var spiral = function(){
             options.fileList = '';
         }
         var r_startingIndex = 0;
-        options.setDefault('fillStartNum', 1);
-        if (options.colorStartNum > 1){
+        options.setDefault('imageStartNum', 1);
+        if (options.imageStartNum > 1){
             //Internally, we are dealing with arrays, so 
             //we need to subtract 1. Index should never be negative.
-            r_startingIndex = options.colorStartNum - 1;
+            r_startingIndex = options.imageStartNum - 1;
         }
         options.setDefault('loop', false);
         var loop = options.loop;
         var fileList = options.fileList.split(',');
-        if (loop && !options.singleImage){
-            while(fileList.length < objectCollection.length){
-                //This is really inefficient, but fortunately the arrays are not so big
-                //so hopefully this won't cost us a lot. It will also likely result in fileList
-                //being bigger than necessary, but aside from feeling icky, it shouldn't have an impact in the end.
-                fileList = fileList.concat(fileList); 
-            };
-        }
         return {
             applyFill : function(objectCollection){
                 if(!objectCollection || !objectCollection.length || fileList.length){
@@ -784,6 +776,14 @@ var spiral = function(){
                     var height = bigRectangle.height;
                     var imageElement = paper.image(fileList[0], x, y, width, height );
                     return [imageElement];
+                };
+                if (loop){
+                    while(fileList.length < objectCollection.length){
+                        //This is really inefficient, but fortunately the arrays are not so big
+                        //so hopefully this won't cost us a lot. It will also likely result in fileList
+                        //being bigger than necessary, but aside from feeling icky, it shouldn't have an impact in the end.
+                        fileList = fileList.concat(fileList); 
+                    };
                 };
                 var elementList = [];
                 for(var i = r_startingIndex; i < objectCollection.length; i++){
