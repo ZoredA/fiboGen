@@ -721,8 +721,6 @@ var spiral = function(){
     
     //Source for this: http://stackoverflow.com/a/14175397
     var fiboToImage = function(paper) {
-        //Using raphael.export
-        //var svg = paper.toSVG();
     
         //No need to use raphael.export since the outerHTML property has it all,
         //and more importantly, raphael.export does not seem to include our
