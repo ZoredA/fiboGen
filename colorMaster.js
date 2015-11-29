@@ -4,14 +4,15 @@
 // Note This file itself does not handle the random number generation.
 // Accepts an options object that allows someone to override all of the
 // randomness if desired. Useful for debugging and trying out stuff.
-var spiralMaster = function(options) {
+var colorMaster = function(options) {
     options = options || {};
     options.setDefault('spiralWheel', 'singleColor');
     options.setDefault('spiralStartColor', 'black');
     options.setDefault('colorWheel', 'singleColor');
-    // Pick the color wheel to use.
     
-    if(options.colorWheel === 'gradientWheel'){
+    // Pick the color wheel to use.
+    var r_colorWheel = options.colorWheel;
+    if(r_colorWheel === 'gradientWheel'){
         //With the exception of spreadMethod, defaults
         //taken from http://www.w3.org/TR/SVG/pservers.html
         options.setDefault('gradientType', 'radial');
@@ -41,7 +42,6 @@ var spiralMaster = function(options) {
         r_startingIndex = options.colorStartNum - 1;
     }
     
-    var r_colorWheel = options.colorWheel;
     var r_getColor;
     var hexColor; //Only used if there is only one color to apply.
     if (r_colorWheel === 'singleColor'){

@@ -72,9 +72,17 @@ var FrontPageWorks = (function(){
         var squareStrokeOptions = nabOptions('sqs_');
         var squareColorOptions = nabOptions('sqf_');    
         
-        masterOptions.spiralColor = spiralMaster(spiralColorOptions);
-        masterOptions.squareStroke = spiralMaster(squareStrokeOptions);
-        masterOptions.squareColor = spiralMaster(squareColorOptions);
+        masterOptions.spiralColor = colorMaster(spiralColorOptions);
+        masterOptions.squareStroke = colorMaster(squareStrokeOptions);
+
+        if(squareColorOptions.colorWheel === "imageWheel"){
+            masterOptions.squareColor = undefined;
+            masterOptions.useImages = true;
+            masterOptions.imageOptions = squareColorOptions;
+        }
+        else{
+            masterOptions.squareColor = colorMaster(squareColorOptions);    
+        }
         
         var sp = spiral();
         paper = sp.run(masterOptions);
@@ -114,28 +122,53 @@ var FrontPageWorks = (function(){
         }
         
         for (var i = 0; i < optionsNeeded.length; i++){
-            if(wheelOptions.options[optionsNeeded[i]].type === 'radio')
+            var optionName = optionsNeeded[i];
+            var requiredType = wheelOptions.options[optionName].type;
+            if(requiredType === 'radio')
             {
-                nabbedOptions[optionsNeeded[i]] = nabSelectedRadio(wheelOptions.options[optionsNeeded[i]].name);
+                nabbedOptions[optionName] = nabSelectedRadio(wheelOptions.options[optionsNeeded[i]].name);
                 continue;
             }
-            var opt = document.getElementById(idPrefix + optionsNeeded[i]);
+            //This one is actually checking a non-DOM type. In theory, we could check for DOM type: input,
+            //but that would imply that all input types are used as fileLists and we don't know yet if that will 
+            //always be true.
+            if(requiredType === 'fileList'){
+                //Reference for URL creation: http://stackoverflow.com/a/24818245
+                var tempList = []; //This will be a list of URLs.
+                var fileList = fileObjects[idPrefix + optionName];
+                for (var j = 0; j < fileList.length; j++){
+                    tempList.push(URL.createObjectURL(fileList[j]));
+                };
+                //URL.createObjectURL(event.target.files[0]));
+                nabbedOptions[optionName] = tempList;
+                console.log("Nabbing list~");
+                //console.dir(fileObjects);
+                continue;
+            }
+            
+            var opt = document.getElementById(idPrefix + optionName);
+            //Technically, we could check requiredType instead, but meh.
+            //(The difference is that requiredType comes from our predefined wheelOptions object,
+            //opt.type is looking at DOM types. This works in this case, but doesn't for all options. The reverse
+            //would work here, but eh, it shouldn't matter much either way, and well this is
+            //how it was originally written before I realized not all DOM types are easy to handle (e.g. dropdowns).
             if (opt.type === 'checkbox'){
-                nabbedOptions[optionsNeeded[i]] = opt.checked;
+                nabbedOptions[optionName] = opt.checked;
                 continue;
             }
             if (opt.type === 'number')
             {
-                nabbedOptions[optionsNeeded[i]] = parseFloat(opt.value);
+                nabbedOptions[optionName] = parseFloat(opt.value);
                 continue; 
             }
-            if(wheelOptions.options[optionsNeeded[i]].type === 'select')
+            //This one isn't quite a DOM type check. 
+            if(requiredType === 'select')
             {
                 var selectValue = opt.options[opt.selectedIndex].value;
-                nabbedOptions[optionsNeeded[i]] = selectValue;
-                if (wheelOptions.options[optionsNeeded[i]].subOptions){
+                nabbedOptions[optionName] = selectValue;
+                if (wheelOptions.options[optionName].subOptions){
                     //This particular option has suboptions associated with it.
-                    var subOptions = wheelOptions.options[optionsNeeded[i]].subOptions[selectValue];
+                    var subOptions = wheelOptions.options[optionName].subOptions[selectValue];
                     for (var j = 0; j < subOptions.length; j++){
                         //Note subOption is an object like {name:.., type:..., value:...}
                         var subOption = subOptions[j];
@@ -145,9 +178,10 @@ var FrontPageWorks = (function(){
             }
             else
             {
-                nabbedOptions[optionsNeeded[i]] = opt.value;    
+                nabbedOptions[optionName] = opt.value;    
             }
         };
+        console.dir(nabbedOptions);
         return nabbedOptions;
     };
     
@@ -156,7 +190,6 @@ var FrontPageWorks = (function(){
         listDiv.className = "colorListLabel";
         
         var colorInput = document.createElement('input');
-        //colorInput.className = "color";
         colorInput.id = idPrefix + "listAddColor";
         var picker = new jscolor.color(colorInput, {})
         picker.fromString(optionDesc.value);
@@ -180,6 +213,37 @@ var FrontPageWorks = (function(){
         listDiv.appendChild(button);
         listDiv.appendChild(textArea);
         parent.appendChild(listDiv);
+    };
+    
+    //This will contain all of the urls created by creatURL for any images
+    //that this generator will use as backgrounds.
+    //Maps like ['optionID'] = [urlList]
+    var fileObjects = {};
+    //Reference: http://www.html5rocks.com/en/tutorials/file/dndfiles/
+    var createFileList = function(parent, optionID, optionDesc, idPrefix){
+        var listDiv = document.createElement('div');
+        listDiv.className = "fileListLabel";
+        var fileButton = document.createElement('input');
+        fileButton.type = "file";
+        fileButton.name = "files[]";
+        fileButton.multiple = true;
+        fileButton.id = idPrefix + optionDesc.name;
+        
+        listDiv.appendChild(fileButton);
+        parent.appendChild(listDiv);
+        //We store the file objects in a global list. We will turn them
+        //into temporary URLs later on.
+        //Reference for URL creation: http://stackoverflow.com/a/24818245
+        fileButton.onchange = function(evt){
+            var files = evt.target.files;
+            var outputList = [];
+            for(var i = 0; i < files.length; i++){
+                outputList.push(files[i]);
+            }
+            console.log("Button event fired~");
+            console.dir(outputList);
+            fileObjects[idPrefix + optionID] = outputList;
+        }
     };
     
     var createRadios = function(parent, optionDesc, idPrefix){
@@ -229,6 +293,10 @@ var FrontPageWorks = (function(){
         }
         if (optionDesc.type === 'colorList'){
             createColorList(parent, optionID, optionDesc, idPrefix);
+            return;
+        }
+        if (optionDesc.type === 'fileList'){
+            createFileList(parent, optionID, optionDesc, idPrefix);
             return;
         }
         var newLabel = document.createElement('label');

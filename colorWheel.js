@@ -15,6 +15,8 @@ var wheelOptions = (function(){
             //Technically, colorStartNum is a property only colorMaster.js
             //cares about, but I am placing it here mostly out of laziness
             //and because it is sort of relevant.
+            //Both name and title properties refer to what the user
+            //sees on the gui.
             colorStartNum : {
                 'type' : 'number',
                 'value' : 4,
@@ -185,7 +187,7 @@ var wheelOptions = (function(){
            'shortestRangedLinearWheel' : ['colorStartNum'],
            'singleColor' : ['colorStartNum'],
            'listWheel' : ['imageStartNum', 'loop', 'colorList'],
-           'imageWheel' : ['fileList', 'fillStartNum', 'loop']
+           'imageWheel' : ['fileList', 'imageStartNum', 'loop']
        }
     };
 })();
@@ -825,7 +827,7 @@ var colorWheels = (function(){
             //This makes sure the end sizes will all be the same.
             colorArrays.fillArrays(['reds', 'greens', 'blues']);
             return colorArrays;
-        }
+        };
     
         var count = 1;
         for (var i = 0; i <= largestIndex; i++){
@@ -975,14 +977,14 @@ var colorWheels = (function(){
         shortestRangedLinearWheel : shortestRangedLinearWheel,
         gradientWheel : gradientWheel,
         listWheel : listWheel
-    }
+    };
 })();
 
 
 //http://stackoverflow.com/a/5624139
 function rgbToHex(r, g, b) {
     return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-}
+};
 
 //http://stackoverflow.com/a/11508164
 var hexToRgb = function(hex) {
@@ -992,7 +994,7 @@ var hexToRgb = function(hex) {
     var b = bigint & 255;
 
     return r + "," + g + "," + b;
-}
+};
 
 var hexToRgbObject = function(hex) {
     var bigint = parseInt(hex, 16);
@@ -1005,4 +1007,4 @@ var hexToRgbObject = function(hex) {
         green : g,
         blue : b
     };
-}
+};

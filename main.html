@@ -109,6 +109,7 @@
           <option value="shortestRangedLinearWheel">Shortest R. Linear Wheel</option>
           <option value="gradientWheel">Gradient Wheel</option>
           <option value="listWheel">Color List</option>
+          <option value="imageWheel">Image List</option>
         </select> 
       </div>
       <div class="labelInputPair">
@@ -144,6 +145,15 @@
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     console.log("hello");
+    
+    // Reference: http://www.html5rocks.com/en/tutorials/file/dndfiles/
+    // Check for the various File API support.
+    if (window.File && window.FileReader && window.FileList && window.Blob) {
+      // Great success! All the File APIs are supported.
+    } else {
+      alert('The File APIs are not fully supported in this browser. You can\'t use the image wheel.');
+    };
+    
     
     //This sets up the little boxes showing off possible orientations.
     FrontPageWorks.setupOrientationDisplay();

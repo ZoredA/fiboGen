@@ -656,7 +656,7 @@ var spiral = function(){
     
     var run = function(masterObject)
     {    
-        spMaster = masterObject || spiralMaster();
+        spMaster = masterObject;
         startingOrientation = spMaster.startingOrientation;
     
         //Hopefully most of this can be used, but it will
@@ -701,16 +701,26 @@ var spiral = function(){
         moveBigRectangle(paper, paperX, paperY);
         paper.setSize(bigRectangle.width + 25, bigRectangle.height + 25);
     
-        //We color our squares.
-        console.log("Coloring the squares.");
-        //This is a little bit messy, but basically the colorMaster class
-        //deals with coloring stuff using colorWheel.js. colorFill simply
-        //adds color to the 'fill' attribute of a Raphael object. colorStroke
-        //sets the stroke attribute to a color. colorStroke can also take
+        if (masterObject.useImages){
+            //We want to use images as the background instead of regular colors.
+            //For this we use the imageMaster, conveniently located in this very file!
+            //Convenient isn't it. No, not lazy or bad design. Nope, not all.
+            var imgMaster = imageMaster(masterObject.imageOptions);
+            imgMaster.createImageOverlay(bigRectangle.squares);
+        }
+        else{
+            //We color our squares.
+            console.log("Coloring the squares.");
+            //The colorMaster class
+            //deals with coloring stuff using colorWheel.js. colorFill simply
+            //adds color to the 'fill' attribute of a Raphael object.
+            spMaster.squareColor.applyFill(bigRectangle.squares);
+        }
+        
+        //This is messy, but applyStroke sets the stroke attribute to a color. applyStroke can also take
         //a callback function that do whatever else you may want (for each square).
         //In this case, we use it to set the stroke width, so we don't have to
         //loop a second time.
-        spMaster.squareColor.applyFill(bigRectangle.squares);
         spMaster.squareStroke.applyStroke(bigRectangle.squares, function(square){
             square.attr('stroke-width', spMaster.squareStrokeWidth)
         });
@@ -745,10 +755,13 @@ var spiral = function(){
         }, 100);
     };
     
-    //This object creates image elements and overlays them on top of the squares.
+    //This object creates image elements and overlays them on top of the squares.'
+    //It is put here because I am lazy and require access to some of the bigRectangle properties like height and width.
     var imageMaster = function(options) {
+        console.dir(options);
         if (!options.fileList){
-            options.fileList = '';
+            options.fileList = []; //An empty list is better than crashing and burning, I guess.
+            console.log("No images specified.");
         }
         var r_startingIndex = 0;
         options.setDefault('imageStartNum', 1);
@@ -758,11 +771,11 @@ var spiral = function(){
             r_startingIndex = options.imageStartNum - 1;
         }
         options.setDefault('loop', false);
+        var fileList = options.fileList;
         var loop = options.loop;
-        var fileList = options.fileList.split(',');
         return {
-            applyFill : function(objectCollection){
-                if(!objectCollection || !objectCollection.length || fileList.length){
+            createImageOverlay : function(objectCollection){
+                if(!objectCollection || !objectCollection.length || !fileList.length){
                     console.log("Empty collection passed in or no images given. Can't add images. Returning.")
                     return ;
                 };
@@ -784,24 +797,27 @@ var spiral = function(){
                     };
                 };
                 var elementList = [];
+                var imageNum = 0;
                 for(var i = r_startingIndex; i < objectCollection.length; i++){
                     var currentSquare = objectCollection[i];
                     var x = currentSquare.attrs.x;
                     var y = currentSquare.attrs.y;
                     var width = currentSquare.attrs.width;
                     var height = currentSquare.attrs.height;
-                    var fileURI = fileList[i];
+                    var fileURI = fileList[imageNum];
                     if (!fileURI){
+                        //Bonus: This will actually also cause it to terminate when we go out
+                        //of bounds in the non-loop case! Yay for risky use of bad JS.
                         return elementList;
                     };
-                    var imageElement = paper.image(fileList[i], x, y, width, height);
+                    var imageElement = paper.image(fileList[imageNum], x, y, width, height);
                     elementList.push(imageElement);
+                    imageNum++;
                 };
                 return elementList;
             }
         };
     };
-
     
     return {
         'imageMaster' : imageMaster,
